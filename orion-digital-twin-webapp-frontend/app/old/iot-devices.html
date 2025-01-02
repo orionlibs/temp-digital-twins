@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="vendors/bower_components/jquery/dist/jquery.min.js"></script>
+    <script>$(document).ready(function(){$('head').load('imports/common/header.html')})</script>
+</head>
+
+<body id="orion-iot" data-sa-theme="1">
+<main class="main">
+    <div id="page-loader"></div>
+    <script>$(document).ready(function(){$('#page-loader').load('imports/common/page-loader.html')})</script>
+
+    <header id="header" class="header"></header>
+    <script>$(document).ready(function(){$('#header').load('imports/common/navbar.html')})</script>
+
+    <aside id="sidebar" class="sidebar"></aside>
+    <script>$(document).ready(function(){$('#sidebar').load('imports/common/sidebar.html')})</script>
+
+    <div id="themes" class="themes"></div>
+    <script>$(document).ready(function(){$('#themes').load('imports/common/theme-selector.html')})</script>
+
+    <section class="content">
+        <header class="content__title">
+            <h1>IoT Devices</h1>
+        </header>
+
+
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Device Details</h4>
+                <h6 class="card-subtitle">This is a snapshot of data. You can see the <a href="iot-devices-live.html">LIVE table</a></h6>
+
+                <div class="table-responsive">
+                    <table id="data-table" class="table">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Connection URL</th>
+                            <th>Payloads</th>
+                            <th>Edit</th>
+                            <th>Latest Payloads</th>
+                        </tr>
+                        </thead>
+                        <tbody id="iot-device-details"></tbody>
+                    </table>
+                </div>
+
+
+                <div id="iot-device-editor-modal" class="modal fade" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title pull-left">Edit IoT Device</h5>
+                            </div>
+                            <div class="modal-body">
+                                <input id="input-iot-device-id" type="hidden" value=""/>
+
+
+                                <div class="input-group">
+                                    <div class="form-group">
+                                        <input id="input-device-name" type="text" class="form-control" placeholder="Device Name">
+                                        <i class="form-group__bar"></i>
+                                    </div>
+                                </div>
+
+
+                                <div class="input-group">
+                                    <div class="form-group">
+                                        <input id="input-connection-url" type="text" class="form-control" placeholder="Connection URL">
+                                        <i class="form-group__bar"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="modal-footer">
+                                <button id="update-iot-device-details-button" type="button" class="btn btn-link">Update</button>
+                                <button id="cancel-update-iot-device-details-button" type="button" class="btn btn-link" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div id="iot-device-latest-payloads-modal" class="modal fade" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title pull-left">Latest Payloads</h5>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>Payload</th>
+                                        <th>Topic</th>
+                                        <th>Timestamp</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="latest-iot-device-payloads"></tbody>
+                                </table>
+                            </div>
+
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="footer"></div>
+        <script>$(document).ready(function(){$('#footer').load('imports/common/footer.html')})</script>
+    </section>
+</main>
+
+
+<script src="vendors/bower_components/popper.js/dist/umd/popper.min.js"></script>
+<script src="vendors/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="vendors/bower_components/jquery.scrollbar/jquery.scrollbar.min.js"></script>
+<script src="vendors/bower_components/jquery-scrollLock/jquery-scrollLock.min.js"></script>
+<script src="vendors/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="vendors/bower_components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+<script src="vendors/bower_components/datatables.net-buttons/js/buttons.print.min.js"></script>
+<script src="vendors/bower_components/jszip/dist/jszip.min.js"></script>
+<script src="vendors/bower_components/datatables.net-buttons/js/buttons.html5.min.js"></script>
+<script src="js/app.min.js"></script>
+<script src="js/orion.js"></script>
+<script src="js/iot-devices.js"></script>
+</body>
+</html>

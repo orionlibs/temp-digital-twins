@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="vendors/bower_components/jquery/dist/jquery.min.js"></script>
+    <script>$(document).ready(function(){$('head').load('imports/common/header.html')})</script>
+</head>
+
+<body id="orion-iot" data-sa-theme="1">
+<main class="main">
+    <div id="page-loader"></div>
+    <script>$(document).ready(function(){$('#page-loader').load('imports/common/page-loader.html')})</script>
+
+    <header id="header" class="header"></header>
+    <script>$(document).ready(function(){$('#header').load('imports/common/navbar.html')})</script>
+
+    <aside id="sidebar" class="sidebar"></aside>
+    <script>$(document).ready(function(){$('#sidebar').load('imports/common/sidebar.html')})</script>
+
+    <div id="themes" class="themes"></div>
+    <script>$(document).ready(function(){$('#themes').load('imports/common/theme-selector.html')})</script>
+
+    <section class="content">
+        <header class="content__title">
+            <h1>Dashboard</h1>
+
+            <!--<div class="actions">
+                <div class="dropdown actions__item">
+                    <i data-toggle="dropdown" class="zmdi zmdi-more-vert"></i>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a href="#" class="dropdown-item">Refresh</a>
+                    </div>
+                </div>
+            </div>-->
+        </header>
+
+
+        <div class="row quick-stats">
+            <div class="col-sm-6 col-md-3">
+                <div class="quick-stats__item">
+                    <div class="quick-stats__info">
+                        <h2 id="number-of-IoT-devices"></h2>
+                        <small>Number of registered IoT devices</small>
+                    </div>
+
+                    <div class="widget-past-days__chart hidden-sm">
+                        <div class="quick-stats__chart peity-bar">6,4,8,6,5,6,7,8,3,5,9</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!--<div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Sales Statistics</h4>
+                        <h6 class="card-subtitle">Vestibulum purus quam scelerisque, mollis nonummy metus</h6>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Growth Rate</h4>
+                        <h6 class="card-subtitle">Commodo luctus nisi erat porttitor ligula eget lacinia odio semnec</h6>
+                    </div>
+                </div>
+            </div>
+        </div>-->
+
+
+        <div id="footer"></div>
+        <script>$(document).ready(function(){$('#footer').load('imports/common/footer.html')})</script>
+    </section>
+</main>
+
+
+<script src="vendors/bower_components/popper.js/dist/umd/popper.min.js"></script>
+<script src="vendors/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="vendors/bower_components/jquery.scrollbar/jquery.scrollbar.min.js"></script>
+<script src="vendors/bower_components/jquery-scrollLock/jquery-scrollLock.min.js"></script>
+<script src="vendors/bower_components/peity/jquery.peity.min.js"></script>
+<script src="demo/js/other-charts.js"></script>
+<script src="js/app.min.js"></script>
+<script src="js/orion.js"></script>
+<script src="js/index.js"></script>
+</body>
+</html>
