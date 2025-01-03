@@ -5,11 +5,15 @@ import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketModel;
 import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketsDAO;
 import io.github.orionlibs.orion_digital_twin.remote_data.TopicSubscriberModel;
 import io.github.orionlibs.orion_digital_twin.remote_data.TopicSubscribersDAO;
+import io.moquette.broker.Server;
+import io.moquette.broker.config.IConfig;
+import io.moquette.broker.config.MemoryConfig;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,10 +27,14 @@ public class MQTTBroker
     private final Map<String, Set<String>> topicToSubscribersMapper;
     private final Map<String, BlockingQueue<MqttMessage>> subscriberMessageQueues;
     private final ExecutorService executorService;
+    private BrokerConnectionConfig config;
+    private Server mqttServer;
+    private boolean running;
 
 
-    public MQTTBroker()
+    public MQTTBroker(BrokerConnectionConfig config)
     {
+        this.config = config;
         this.topicToSubscribersMapper = new ConcurrentHashMap<>();
         List<TopicSubscriberModel> allSubscribers = TopicSubscribersDAO.getAll();
         this.subscriberMessageQueues = new ConcurrentHashMap<>();
@@ -41,6 +49,71 @@ public class MQTTBroker
             retrievePendingMessagesFromDatabase(subscriberID);
         }
         this.executorService = Executors.newCachedThreadPool();
+    }
+
+
+    public void startBroker()
+    {
+        // Use config to start the broker, for example:
+        if(config.isSecure())
+        {
+            startSecureBroker(config.getHost(), config.getPort(), config.getUsername(), config.getPassword());
+        }
+        else
+        {
+            startInsecureBroker(config.getHost(), config.getPort());
+        }
+    }
+
+
+    private void startSecureBroker(String host, int port, String username, String password)
+    {
+        try
+        {
+            // Create broker configuration
+            Properties configProps = new Properties();
+            configProps.setProperty("host", host);
+            configProps.setProperty("port", String.valueOf(port));
+            configProps.setProperty("password_file", "password.conf"); // File defining users/passwords
+            configProps.setProperty("ssl_port", String.valueOf(port));
+            configProps.setProperty("jks_path", "keystore.jks"); // Path to your Java keystore
+            configProps.setProperty("key_store_password", "keystorePassword");
+            configProps.setProperty("key_manager_password", "keyManagerPassword");
+            IConfig brokerConfig = new MemoryConfig(configProps);
+            // Start the broker
+            Server mqttBroker = new Server();
+            mqttBroker.startServer(brokerConfig);
+            System.out.println("Secure MQTT Broker started on " + host + ":" + port);
+            this.running = true;
+        }
+        catch(Exception e)
+        {
+            this.running = false;
+            throw new RuntimeException("Failed to start secure MQTT broker: " + e.getMessage(), e);
+        }
+    }
+
+
+    private void startInsecureBroker(String host, int port)
+    {
+        try
+        {
+            // Create broker configuration
+            Properties configProps = new Properties();
+            configProps.setProperty("host", host);
+            configProps.setProperty("port", String.valueOf(port));
+            IConfig brokerConfig = new MemoryConfig(configProps);
+            // Start the broker
+            Server mqttBroker = new Server();
+            mqttBroker.startServer(brokerConfig);
+            System.out.println("Insecure MQTT Broker started on " + host + ":" + port);
+            this.running = true;
+        }
+        catch(Exception e)
+        {
+            this.running = false;
+            throw new RuntimeException("Failed to start insecure MQTT broker: " + e.getMessage(), e);
+        }
     }
 
 
@@ -149,9 +222,24 @@ public class MQTTBroker
     }
 
 
-    // Shut down the broker
-    public void shutdown()
+    public void stopBroker()
     {
+        if(mqttServer != null)
+        {
+            try
+            {
+                mqttServer.stopServer();
+                System.out.println("MQTT Broker stopped successfully.");
+            }
+            catch(Exception e)
+            {
+                System.err.println("Error stopping MQTT Broker: " + e.getMessage());
+            }
+        }
+        else
+        {
+            System.out.println("MQTT Broker is not running.");
+        }
         executorService.shutdown();
     }
 
@@ -159,5 +247,11 @@ public class MQTTBroker
     public void clientReconnected(String clientId)
     {
         retrievePendingMessagesFromDatabase(clientId);
+    }
+
+
+    public boolean isRunning()
+    {
+        return running;
     }
 }
