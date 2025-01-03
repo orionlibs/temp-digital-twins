@@ -6,6 +6,14 @@ $(document).ready(function ()
     });
 
 
+    const connectionConfigurationJSONFilesToUpload = document.getElementById('connection-configuration-json-files-to-upload');
+
+    connectionConfigurationJSONFilesToUpload.addEventListener('change', async () =>
+    {
+        orionCommon.uploadFile('http://localhost:8080/wapi/v1/connection-configurations/uploads/json', 'connection-configuration-json-files-to-upload', connectionConfigurations.processSuccessfulConnectionConfigurationAdditionViaJSON);
+    });
+
+
     $('body').on('click', '#add-connection-configuration-button', function(e)
     {
         const dataToSend =
@@ -151,6 +159,14 @@ let connectionConfigurations =
 {
     processSuccessfulConnectionConfigurationAddition : function(jsonResponse)
     {
+        $(".close-modal-button").click();
+        $("#refresh-connection-configurations-table-button").click();
+    },
+
+
+    processSuccessfulConnectionConfigurationAdditionViaJSON : function(jsonResponse)
+    {
+        //alert(jsonResponse);
         $(".close-modal-button").click();
         $("#refresh-connection-configurations-table-button").click();
     },

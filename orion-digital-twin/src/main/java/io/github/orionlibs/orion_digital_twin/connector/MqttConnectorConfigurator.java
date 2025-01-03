@@ -1,5 +1,7 @@
 package io.github.orionlibs.orion_digital_twin.connector;
 
+import io.github.orionlibs.orion_digital_twin.device_details.ConnectionConfigurationModel;
+import io.github.orionlibs.orion_digital_twin.device_details.ConnectionConfigurationsDAO;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -85,5 +87,17 @@ class MqttConnectorConfigurator implements ConnectorConfigurator
     @Override
     public void storeToDatabase()
     {
+        ConnectionConfigurationsDAO.save(ConnectionConfigurationModel.builder()
+                        .dataSourceId((String)config.get("dataSourceId"))
+                        .dataSourceType((String)config.get("dataSourceType"))
+                        .apiUrl((String)config.get("apiUrl"))
+                        .apiKey((String)config.get("apiKey"))
+                        .httpMethod((String)config.get("httpMethod"))
+                        .brokerUrl((String)config.get("brokerUrl"))
+                        .topic((String)config.get("topic"))
+                        .clientId((String)config.get("clientId"))
+                        .username((String)config.get("username"))
+                        .password((String)config.get("password"))
+                        .build());
     }
 }

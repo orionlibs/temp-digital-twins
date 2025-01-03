@@ -206,6 +206,52 @@ let orionCommon =
     },
 
 
+    uploadFile : async function(URL, fileInputID, callbackFunction)
+    {
+        const fileInput = document.getElementById(fileInputID);
+        const files = fileInput.files;
+        const formData = new FormData();
+
+        for(let file of files)
+        {
+            formData.append('files[]', file);
+        }
+
+        try
+        {
+            const response = await fetch(URL,
+            {
+                method: 'POST',
+                body: formData,
+            });
+
+            if(response.ok)
+            {
+                const result = await response.json();
+
+                if(typeof callbackFunction === "function")
+                {
+                    callbackFunction(result);
+                }
+            }
+            else
+            {
+                if(typeof callbackFunction === "function")
+                {
+                    callbackFunction(response.statusText);
+                }
+            }
+        }
+        catch(error)
+        {
+            if(typeof callbackFunction === "function")
+            {
+                callbackFunction(error);
+            }
+        }
+    },
+
+
     getCookie : function(name)
     {
         const cookieValue = document.cookie
