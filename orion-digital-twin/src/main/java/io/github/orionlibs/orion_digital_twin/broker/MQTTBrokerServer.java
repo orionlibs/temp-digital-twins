@@ -81,7 +81,7 @@ public class MQTTBrokerServer
             configProps.setProperty(IConfig.HOST_PROPERTY_NAME, host);
             configProps.setProperty(IConfig.PORT_PROPERTY_NAME, String.valueOf(port));
             configProps.setProperty(IConfig.ENABLE_TELEMETRY_NAME, "false");
-            //configProps.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, "false");
+            configProps.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, "false");
             //configProps.setProperty(IConfig.DATA_PATH_PROPERTY_NAME, "/currentDir/data");
             IConfig brokerConfig = new MemoryConfig(configProps);
             mqttServer = new Server();
