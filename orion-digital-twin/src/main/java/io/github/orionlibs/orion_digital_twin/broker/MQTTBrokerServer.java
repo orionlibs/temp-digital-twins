@@ -1,5 +1,6 @@
 package io.github.orionlibs.orion_digital_twin.broker;
 
+import io.moquette.broker.ClientDescriptor;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.IConfig;
 import io.moquette.broker.config.MemoryConfig;
@@ -41,8 +42,11 @@ public class MQTTBrokerServer
         {
             // Create broker configuration
             Properties configProps = new Properties();
-            configProps.setProperty("host", host);
-            configProps.setProperty("port", String.valueOf(port));
+            configProps.setProperty(IConfig.HOST_PROPERTY_NAME, host);
+            configProps.setProperty(IConfig.PORT_PROPERTY_NAME, String.valueOf(port));
+            configProps.setProperty(IConfig.ENABLE_TELEMETRY_NAME, "false");
+            //configProps.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, "false");
+            //configProps.setProperty(IConfig.DATA_PATH_PROPERTY_NAME, "/currentDir/data");
             configProps.setProperty("password_file", "password.conf"); // File defining users/passwords
             configProps.setProperty("ssl_port", String.valueOf(port));
             configProps.setProperty("jks_path", "keystore.jks"); // Path to your Java keystore
@@ -52,6 +56,12 @@ public class MQTTBrokerServer
             // Start the broker
             mqttServer = new Server();
             mqttServer.startServer(brokerConfig);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                if(mqttServer != null)
+                {
+                    mqttServer.stopServer();
+                }
+            }));
             System.out.println("Secure MQTT Broker started on " + host + ":" + port);
             this.isRunning = true;
         }
@@ -68,15 +78,25 @@ public class MQTTBrokerServer
         try
         {
             Properties configProps = new Properties();
-            configProps.setProperty("host", host);
-            configProps.setProperty("port", String.valueOf(port));
+            configProps.setProperty(IConfig.HOST_PROPERTY_NAME, host);
+            configProps.setProperty(IConfig.PORT_PROPERTY_NAME, String.valueOf(port));
+            configProps.setProperty(IConfig.ENABLE_TELEMETRY_NAME, "false");
+            //configProps.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, "false");
+            //configProps.setProperty(IConfig.DATA_PATH_PROPERTY_NAME, "/currentDir/data");
             IConfig brokerConfig = new MemoryConfig(configProps);
             mqttServer = new Server();
             mqttServer.startServer(brokerConfig);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                mqttServer.stopServer();
+                if(mqttServer != null)
+                {
+                    mqttServer.stopServer();
+                }
             }));
             System.out.println("Insecure MQTT Broker started on " + host + ":" + port);
+            for(ClientDescriptor client : mqttServer.listConnectedClients())
+            {
+                System.out.println("--------" + client.getClientID());
+            }
             this.isRunning = true;
         }
         catch(Exception e)

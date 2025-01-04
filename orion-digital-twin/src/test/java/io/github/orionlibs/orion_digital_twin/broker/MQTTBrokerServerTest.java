@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.github.orionlibs.orion_digital_twin.ATest;
 import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketsDAO;
 import io.github.orionlibs.orion_digital_twin.remote_data.TopicSubscribersDAO;
+import java.io.IOException;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
@@ -19,9 +20,10 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 @TestInstance(Lifecycle.PER_CLASS)
 //@Execution(ExecutionMode.CONCURRENT)
-public class MQTTBrokerTest extends ATest
+public class MQTTBrokerServerTest extends ATest
 {
     private MQTTBrokerServer brokerServer;
+    private MQTTBrokerClient testClient;
     private String clientID = "testClientId";
 
 
@@ -37,11 +39,15 @@ public class MQTTBrokerTest extends ATest
     }
 
 
-    @AfterEach
-    void teardown()
+    /*@AfterEach
+    void teardown() throws IOException
     {
+        if(testClient != null && testClient.isConnected())
+        {
+            testClient.close();
+        }
         brokerServer.stopBroker();
-    }
+    }*/
 
 
     @Test
@@ -52,43 +58,51 @@ public class MQTTBrokerTest extends ATest
 
 
     @Test
-    void testPublishAndSubscribeAndUnsubscribeAndPersistenceAfterMQTTServerShutdown() throws MQTTServerNotRunningException
+    void testPublishAndSubscribeAndUnsubscribeAndPersistenceAfterMQTTServerShutdown() throws MqttException, MQTTClientNotRunningException, IOException
     {
+        testClient = getClient("testClientId");
         assertEquals(0, TopicSubscribersDAO.getNumberOfRecords());
-        brokerServer.subscribe("/topic1/hello", clientID);
-        brokerServer.subscribe("/topic2/hello", clientID);
+        testClient.subscribe("/topic1/hello");
+        testClient.subscribe("/topic2/hello");
         assertEquals(2, TopicSubscribersDAO.getNumberOfRecords());
         assertEquals(0, DataPacketsDAO.getNumberOfRecords());
         MqttProperties props = new MqttProperties();
         props.setMaximumQoS(2);
         MqttMessage message = new MqttMessage("Hello World!!".getBytes(UTF_8), 2, true, props);
-        brokerServer.publish("/topic1/hello", message);
-        brokerServer.publish("/topic2/hello", message);
+        testClient.publish("/topic1/hello", message);
+        testClient.publish("/topic2/hello", message);
         assertEquals(2, DataPacketsDAO.getNumberOfRecords());
-        brokerServer.unsubscribe("/topic1/hello", clientID);
+        testClient.unsubscribe("/topic1/hello");
         assertEquals(1, TopicSubscribersDAO.getNumberOfRecords());
         assertEquals(1, DataPacketsDAO.getNumberOfRecords());
-        brokerServer.stopBroker();
+        testClient.close();
         assertEquals(1, TopicSubscribersDAO.getNumberOfRecords());
         assertEquals(1, DataPacketsDAO.getNumberOfRecords());
     }
 
 
     @Test
-    void testUsingMQTTBrokerServerWhenIsNotRunning()
+    void testUsingMQTTBrokerServerWhenIsNotRunning() throws MqttException
     {
+        testClient = getClient("testClientId");
         brokerServer.stopBroker();
-        MQTTServerNotRunningException exception1 = assertThrows(MQTTServerNotRunningException.class, () -> {
-            brokerServer.subscribe("/topic1/hello", clientID);
+        MQTTClientNotRunningException exception1 = assertThrows(MQTTClientNotRunningException.class, () -> {
+            testClient.subscribe("/topic1/hello");
         });
         MqttProperties props = new MqttProperties();
         props.setMaximumQoS(2);
         MqttMessage message = new MqttMessage("Hello World!!".getBytes(UTF_8), 2, true, props);
-        MQTTServerNotRunningException exception2 = assertThrows(MQTTServerNotRunningException.class, () -> {
-            brokerServer.publish("/topic1/hello", message);
+        MQTTClientNotRunningException exception2 = assertThrows(MQTTClientNotRunningException.class, () -> {
+            testClient.publish("/topic1/hello", message);
         });
-        MQTTServerNotRunningException exception3 = assertThrows(MQTTServerNotRunningException.class, () -> {
-            brokerServer.unsubscribe("/topic1/hello", clientID);
+        MQTTClientNotRunningException exception3 = assertThrows(MQTTClientNotRunningException.class, () -> {
+            testClient.unsubscribe("/topic1/hello");
         });
+    }
+
+
+    private static MQTTBrokerClient getClient(String clientId) throws MqttException
+    {
+        return new MQTTBrokerClient("tcp://0.0.0.0:1883", clientId);
     }
 }
