@@ -237,4 +237,18 @@ public class DataPacketsDAO
                         Databases.remoteDataDatabase,
                         Arrays.asList(Databases.dataPacketID));
     }
+
+
+    public static int deleteDataPacketsForTopicAndClientId(String topic, String clientId)
+    {
+        DataPacketModel model = DataPacketModel.builder()
+                        .clientId(clientId)
+                        .topic(topic)
+                        .build();
+        return MySQL.deleteModel(model,
+                        Databases.tableDataPackets,
+                        Databases.remoteDataDatabase,
+                        Arrays.asList(Databases.topic,
+                                        Databases.clientId));
+    }
 }

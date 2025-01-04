@@ -1,15 +1,13 @@
 package io.github.orionlibs.orion_digital_twin.broker;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import io.github.orionlibs.orion_digital_twin.ATest;
-import org.eclipse.paho.mqttv5.client.IMqttClient;
-import org.eclipse.paho.mqttv5.client.IMqttToken;
-import org.eclipse.paho.mqttv5.client.MqttCallback;
-import org.eclipse.paho.mqttv5.client.MqttClient;
-import org.eclipse.paho.mqttv5.client.MqttDisconnectResponse;
+import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketsDAO;
+import io.github.orionlibs.orion_digital_twin.remote_data.TopicSubscribersDAO;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
@@ -23,8 +21,8 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 //@Execution(ExecutionMode.CONCURRENT)
 public class MQTTBrokerTest extends ATest
 {
-    private MQTTBroker broker;
-    private IMqttClient testClient;
+    private MQTTBrokerServer brokerServer;
+    private String clientID = "testClientId";
 
 
     @BeforeEach
@@ -32,148 +30,65 @@ public class MQTTBrokerTest extends ATest
     {
         resetAndSeedDatabase();
         BrokerConnectionConfig config = new BrokerConnectionConfig();
-        config.setHost("localhost");
+        config.setHost("0.0.0.0");
         config.setPort(1883);
-        broker = new MQTTBroker(config);
-        broker.startBroker();
-        testClient = new MqttClient("tcp://localhost:1883", "testClientId");
+        brokerServer = new MQTTBrokerServer(config);
+        brokerServer.startBroker();
     }
 
 
     @AfterEach
-    void teardown() throws Exception
+    void teardown()
     {
-        if(testClient.isConnected())
-        {
-            testClient.disconnect();
-        }
-        broker.stopBroker();
+        brokerServer.stopBroker();
     }
 
 
     @Test
     void testBrokerStartup()
     {
-        assertTrue(broker.isRunning(), "Broker should be running after startup");
+        assertTrue(brokerServer.isRunning(), "Broker should be running after startup");
     }
 
 
     @Test
-    void testClientConnection() throws Exception
+    void testPublishAndSubscribeAndUnsubscribeAndPersistenceAfterMQTTServerShutdown() throws MQTTServerNotRunningException
     {
-        testClient.connect();
-        assertTrue(testClient.isConnected(), "Client should connect to the broker");
+        assertEquals(0, TopicSubscribersDAO.getNumberOfRecords());
+        brokerServer.subscribe("/topic1/hello", clientID);
+        brokerServer.subscribe("/topic2/hello", clientID);
+        assertEquals(2, TopicSubscribersDAO.getNumberOfRecords());
+        assertEquals(0, DataPacketsDAO.getNumberOfRecords());
+        MqttProperties props = new MqttProperties();
+        props.setMaximumQoS(2);
+        MqttMessage message = new MqttMessage("Hello World!!".getBytes(UTF_8), 2, true, props);
+        brokerServer.publish("/topic1/hello", message);
+        brokerServer.publish("/topic2/hello", message);
+        assertEquals(2, DataPacketsDAO.getNumberOfRecords());
+        brokerServer.unsubscribe("/topic1/hello", clientID);
+        assertEquals(1, TopicSubscribersDAO.getNumberOfRecords());
+        assertEquals(1, DataPacketsDAO.getNumberOfRecords());
+        brokerServer.stopBroker();
+        assertEquals(1, TopicSubscribersDAO.getNumberOfRecords());
+        assertEquals(1, DataPacketsDAO.getNumberOfRecords());
     }
 
 
     @Test
-    void testMessagePublishingAndSubscription() throws Exception
+    void testUsingMQTTBrokerServerWhenIsNotRunning()
     {
-        testClient.connect();
-        String topic = "test/topic";
-        testClient.subscribe(topic, 2);
-        String payload = "Hello, MQTT!";
-        MqttMessage message = new MqttMessage(payload.getBytes());
-        message.setQos(1);
-        testClient.publish(topic, message);
-        //use a callback to capture the message
-        testClient.setCallback(new MqttCallback()
-        {
-            @Override
-            public void disconnected(MqttDisconnectResponse mqttDisconnectResponse)
-            {
-            }
-
-
-            @Override
-            public void mqttErrorOccurred(MqttException e)
-            {
-                fail("Connection lost unexpectedly");
-            }
-
-
-            @Override
-            public void messageArrived(String topic, MqttMessage message)
-            {
-                assertEquals(payload, new String(message.getPayload()), "Payload should match");
-                assertEquals(1, message.getQos(), "QoS should match");
-            }
-
-
-            @Override
-            public void deliveryComplete(IMqttToken iMqttToken)
-            {
-            }
-
-
-            @Override
-            public void connectComplete(boolean b, String s)
-            {
-            }
-
-
-            @Override
-            public void authPacketArrived(int i, MqttProperties mqttProperties)
-            {
-            }
+        brokerServer.stopBroker();
+        MQTTServerNotRunningException exception1 = assertThrows(MQTTServerNotRunningException.class, () -> {
+            brokerServer.subscribe("/topic1/hello", clientID);
         });
-    }
-
-
-    @Test
-    void testQoS2MessagePersistence() throws Exception
-    {
-        // Connect and publish with QoS 2
-        testClient.connect();
-        String topic = "qos2/topic";
-        String payload = "Persistent Message";
-        MqttMessage message = new MqttMessage(payload.getBytes());
-        message.setQos(2);
-        testClient.publish(topic, message);
-        // Simulate client disconnect and reconnect
-        testClient.disconnect();
-        testClient.connect();
-        // Verify message is redelivered
-        testClient.setCallback(new MqttCallback()
-        {
-            @Override
-            public void disconnected(MqttDisconnectResponse mqttDisconnectResponse)
-            {
-            }
-
-
-            @Override
-            public void mqttErrorOccurred(MqttException e)
-            {
-                fail("Connection lost unexpectedly");
-            }
-
-
-            @Override
-            public void messageArrived(String topic, MqttMessage message)
-            {
-                assertEquals(payload, new String(message.getPayload()), "Payload should match after reconnect");
-            }
-
-
-            @Override
-            public void deliveryComplete(IMqttToken iMqttToken)
-            {
-            }
-
-
-            @Override
-            public void connectComplete(boolean b, String s)
-            {
-            }
-
-
-            @Override
-            public void authPacketArrived(int i, MqttProperties mqttProperties)
-            {
-            }
+        MqttProperties props = new MqttProperties();
+        props.setMaximumQoS(2);
+        MqttMessage message = new MqttMessage("Hello World!!".getBytes(UTF_8), 2, true, props);
+        MQTTServerNotRunningException exception2 = assertThrows(MQTTServerNotRunningException.class, () -> {
+            brokerServer.publish("/topic1/hello", message);
         });
-        // Re-subscribe and confirm message redelivery
-        testClient.subscribe(topic, 2);
+        MQTTServerNotRunningException exception3 = assertThrows(MQTTServerNotRunningException.class, () -> {
+            brokerServer.unsubscribe("/topic1/hello", clientID);
+        });
     }
 }
