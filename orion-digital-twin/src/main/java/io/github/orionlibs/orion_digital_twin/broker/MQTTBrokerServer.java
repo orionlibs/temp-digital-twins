@@ -18,15 +18,8 @@ import java.util.concurrent.ExecutionException;
 
 public class MQTTBrokerServer
 {
-    private MQTTBroker broker;
     private EmbeddedHiveMQ embeddedHiveMQ;
     private boolean isRunning;
-
-
-    public MQTTBrokerServer()
-    {
-        this.broker = new MQTTBroker();
-    }
 
 
     public void startBroker() throws ExecutionException, InterruptedException, URISyntaxException

@@ -4,6 +4,10 @@ import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
+import com.hivemq.extension.sdk.api.packets.general.Qos;
+import io.github.orionlibs.orion_calendar.SQLTimestamp;
+import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketModel;
+import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketsDAO;
 
 public class MQTTPublishInterceptor implements PublishInboundInterceptor
 {
@@ -12,11 +16,28 @@ public class MQTTPublishInterceptor implements PublishInboundInterceptor
     {
         String clientId = publishInboundInput.getClientInformation().getClientId();
         String topic = publishInboundInput.getPublishPacket().getTopic();
-        System.out.println("Publish intercepted: ClientId=" + clientId + ", Topic=" + topic);
-        //broker.publish(topic, message);
-        //broker.unsubscribe(topic, clientId);
-        //broker.subscribe(topic, clientId);
+        if(publishInboundOutput.getPublishPacket().getQos() == Qos.AT_LEAST_ONCE
+                        || publishInboundOutput.getPublishPacket().getQos() == Qos.EXACTLY_ONCE)
+        {
+            SQLTimestamp payloadPyblicationDateTime = SQLTimestamp.of(publishInboundOutput.getPublishPacket().getTimestamp());
+            int qualityOfServiceLevel = publishInboundOutput.getPublishPacket().getQos().getQosNumber();
+            publishInboundOutput.getPublishPacket().getPayload().ifPresent(payload -> this.storePayloadToDatabase(clientId, topic, new String(payload.array()), qualityOfServiceLevel, payloadPyblicationDateTime));
+            //storePayloadToDatabase(clientId, topic, publishInboundOutput.getPublishPacket().getQos().getQosNumber());
+        }
         // Optional: Modify the publish message
         // publishInboundOutput.getPublishPacket().setPayload(...);
+    }
+
+
+    private void storePayloadToDatabase(String clientId, String topic, String payload, int qualityOfServiceLevel, SQLTimestamp payloadPyblicationDateTime)
+    {
+        DataPacketsDAO.save(DataPacketModel.builder()
+                        .clientId(clientId)
+                        .topic(topic)
+                        .content(payload)
+                        .qualityOfServiceLevel(qualityOfServiceLevel)
+                        .isDeliveredToClient(Boolean.FALSE)
+                        .publicationDateTime(payloadPyblicationDateTime)
+                        .build());
     }
 }

@@ -4,6 +4,8 @@ import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.interceptor.unsubscribe.UnsubscribeInboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.unsubscribe.parameter.UnsubscribeInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.unsubscribe.parameter.UnsubscribeInboundOutput;
+import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketsDAO;
+import io.github.orionlibs.orion_digital_twin.remote_data.TopicSubscribersDAO;
 
 public class MQTTUnsubscribeInterceptor implements UnsubscribeInboundInterceptor
 {
@@ -14,7 +16,8 @@ public class MQTTUnsubscribeInterceptor implements UnsubscribeInboundInterceptor
         unsubscribeInboundInput.getUnsubscribePacket()
                         .getTopicFilters()
                         .forEach(topic -> {
-                            System.out.println("Unsubscribe intercepted: ClientId=" + clientId + ", Topic=" + topic);
+                            TopicSubscribersDAO.delete(topic, clientId);
+                            DataPacketsDAO.deleteDataPacketsForTopicAndClientId(topic, clientId);
                         });
     }
 }

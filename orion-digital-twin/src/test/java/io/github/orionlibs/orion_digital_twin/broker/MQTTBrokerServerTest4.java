@@ -5,19 +5,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
-import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
-import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5WillPublish;
 import com.hivemq.client.mqtt.mqtt5.message.subscribe.Mqtt5Subscribe;
 import com.hivemq.client.mqtt.mqtt5.message.subscribe.Mqtt5Subscription;
 import com.hivemq.client.mqtt.mqtt5.message.unsubscribe.Mqtt5Unsubscribe;
 import io.github.orionlibs.orion_digital_twin.ATest;
+import io.github.orionlibs.orion_digital_twin.connector.ConnectorFactory;
 import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketsDAO;
 import io.github.orionlibs.orion_digital_twin.remote_data.TopicSubscribersDAO;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
-import org.eclipse.paho.mqttv5.common.MqttException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +25,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 //@Execution(ExecutionMode.CONCURRENT)
 public class MQTTBrokerServerTest4 extends ATest
 {
-    private MQTTBrokerServer2 brokerServer;
+    private MQTTBrokerServer brokerServer;
     private Mqtt5BlockingClient testClient;
     private String clientID = "testClientId";
 
@@ -37,18 +34,15 @@ public class MQTTBrokerServerTest4 extends ATest
     void setUp() throws ExecutionException, InterruptedException, URISyntaxException
     {
         resetAndSeedDatabase();
-        BrokerConnectionConfig config = new BrokerConnectionConfig();
-        config.setHost("0.0.0.0");
-        config.setPort(1883);
-        brokerServer = new MQTTBrokerServer2(config);
+        brokerServer = new MQTTBrokerServer();
         brokerServer.startBroker();
     }
 
 
     @AfterEach
-    void teardown() throws IOException, ExecutionException, InterruptedException
+    void teardown()
     {
-        if(testClient != null && testClient.getConfig().getState().isConnected())
+        if(testClient != null && testClient.getConfig().getState().isConnectedOrReconnect())
         {
             testClient.disconnect();
         }
@@ -57,7 +51,6 @@ public class MQTTBrokerServerTest4 extends ATest
 
 
     @Test
-        //@Disabled
     void testBrokerStartup()
     {
         assertTrue(brokerServer.isRunning(), "Broker should be running after startup");
@@ -65,16 +58,9 @@ public class MQTTBrokerServerTest4 extends ATest
 
 
     @Test
-        //@Disabled
-    void testPublishAndSubscribeAndUnsubscribeAndPersistenceAfterMQTTServerShutdown() throws ExecutionException, InterruptedException
+    void testPublishAndSubscribeAndUnsubscribeAndPersistenceAfterMQTTServerShutdown()
     {
-        testClient = Mqtt5Client.builder()
-                        .identifier(clientID)
-                        .serverHost("0.0.0.0")
-                        .serverPort(1883)
-                        .buildBlocking();
-        Mqtt5ConnAck connectionAcknowledgement = testClient.connect();
-        //testClient = getClient(clientID);
+        testClient = getClient(clientID);
         assertEquals(0, TopicSubscribersDAO.getNumberOfRecords());
         testClient.subscribe(Mqtt5Subscribe.builder()
                         .addSubscription(Mqtt5Subscription.builder().topicFilter("test/topic1").qos(MqttQos.AT_MOST_ONCE).build())
@@ -94,32 +80,11 @@ public class MQTTBrokerServerTest4 extends ATest
                         .topicFilter("test/topic1")
                         .build());
         assertEquals(1, TopicSubscribersDAO.getNumberOfRecords());
-
-
-
-
-        /*testClient.subscribe("/topic1/hello");
-        testClient.subscribe("/topic2/hello");
-        assertEquals(2, TopicSubscribersDAO.getNumberOfRecords());
-        assertEquals(0, DataPacketsDAO.getNumberOfRecords());
-        MqttProperties props = new MqttProperties();
-        props.setMaximumQoS(2);
-        MqttMessage message = new MqttMessage("Hello World!!".getBytes(UTF_8), 2, true, props);
-        testClient.publish("/topic1/hello", message);
-        testClient.publish("/topic2/hello", message);
-        assertEquals(2, DataPacketsDAO.getNumberOfRecords());
-        testClient.unsubscribe("/topic1/hello");
-        assertEquals(1, TopicSubscribersDAO.getNumberOfRecords());
-        assertEquals(1, DataPacketsDAO.getNumberOfRecords());
-        testClient.close();
-        assertEquals(1, TopicSubscribersDAO.getNumberOfRecords());
-        assertEquals(1, DataPacketsDAO.getNumberOfRecords());*/
     }
 
 
     /*@Test
-    @Disabled
-    void testUsingMQTTBrokerServerWhenIsNotRunning() throws MqttException
+    void testUsingMQTTBrokerServerWhenIsNotRunning()
     {
         testClient = getClient("testClientId");
         brokerServer.stopBroker();
@@ -138,8 +103,8 @@ public class MQTTBrokerServerTest4 extends ATest
     }*/
 
 
-    private static MQTTBrokerClient getClient(String clientId) throws MqttException
+    private static Mqtt5BlockingClient getClient(String clientId)
     {
-        return new MQTTBrokerClient("tcp://0.0.0.0:1883", clientId);
+        return ConnectorFactory.newMqttConnector("0.0.0.0", 1883, clientId);
     }
 }
