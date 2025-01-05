@@ -1,9 +1,16 @@
 package io.github.orionlibs.orion_digital_twin.broker;
 
-import io.moquette.broker.ClientDescriptor;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.IConfig;
 import io.moquette.broker.config.MemoryConfig;
+import io.moquette.interception.InterceptHandler;
+import io.moquette.interception.messages.InterceptAcknowledgedMessage;
+import io.moquette.interception.messages.InterceptConnectMessage;
+import io.moquette.interception.messages.InterceptConnectionLostMessage;
+import io.moquette.interception.messages.InterceptDisconnectMessage;
+import io.moquette.interception.messages.InterceptPublishMessage;
+import io.moquette.interception.messages.InterceptSubscribeMessage;
+import io.moquette.interception.messages.InterceptUnsubscribeMessage;
 import java.util.Properties;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 
@@ -86,6 +93,67 @@ public class MQTTBrokerServer
             IConfig brokerConfig = new MemoryConfig(configProps);
             mqttServer = new Server();
             mqttServer.startServer(brokerConfig);
+            mqttServer.addInterceptHandler(new InterceptHandler()
+            {
+                @Override public String getID()
+                {
+                    return "";
+                }
+
+
+                @Override public Class<?>[] getInterceptedMessageTypes()
+                {
+                    return new Class[0];
+                }
+
+
+                @Override public void onConnect(InterceptConnectMessage interceptConnectMessage)
+                {
+                    System.out.println("onConnect");
+                }
+
+
+                @Override public void onDisconnect(InterceptDisconnectMessage interceptDisconnectMessage)
+                {
+                    System.out.println("onDisconnect");
+                }
+
+
+                @Override public void onConnectionLost(InterceptConnectionLostMessage interceptConnectionLostMessage)
+                {
+                    System.out.println("onConnectionLost");
+                }
+
+
+                @Override public void onPublish(InterceptPublishMessage interceptPublishMessage)
+                {
+                    System.out.println("onPublish");
+                }
+
+
+                @Override public void onSubscribe(InterceptSubscribeMessage interceptSubscribeMessage)
+                {
+                    System.out.println("onSubscribe");
+                }
+
+
+                @Override public void onUnsubscribe(InterceptUnsubscribeMessage interceptUnsubscribeMessage)
+                {
+                    System.out.println("onUnsubscribe");
+                }
+
+
+                @Override public void onMessageAcknowledged(InterceptAcknowledgedMessage interceptAcknowledgedMessage)
+                {
+                    System.out.println("onMessageAcknowledged");
+                }
+
+
+                @Override public void onSessionLoopError(Throwable throwable)
+                {
+                    System.out.println("onSessionLoopError");
+                }
+            });
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 if(mqttServer != null)
                 {
@@ -93,10 +161,6 @@ public class MQTTBrokerServer
                 }
             }));
             System.out.println("Insecure MQTT Broker started on " + host + ":" + port);
-            for(ClientDescriptor client : mqttServer.listConnectedClients())
-            {
-                System.out.println("--------" + client.getClientID());
-            }
             this.isRunning = true;
         }
         catch(Exception e)

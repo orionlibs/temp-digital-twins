@@ -21,14 +21,6 @@ public class MQTTBrokerClient implements Closeable
     public MQTTBrokerClient(String mqttAddressToConnectTo, String mqttClientID) throws MqttException
     {
         subscriberClient = new MqttAsyncClient(mqttAddressToConnectTo, mqttClientID, new MemoryPersistence());
-        MqttConnectionOptions options = new MqttConnectionOptions();
-        options.setAutomaticReconnect(true);
-        //options.setCleanStart(true);
-        options.setConnectionTimeout(10);
-        IMqttToken connectionStatus = subscriberClient.connect(options);
-        connectionStatus.waitForCompletion();
-        System.out.println("-----------------" + connectionStatus.getClient().getClientId());
-        isConnected = true;
         subscriberClient.setCallback(new MqttCallback()
         {
             @Override
@@ -74,6 +66,18 @@ public class MQTTBrokerClient implements Closeable
                 System.out.println("authPacketArrived");
             }
         });
+        MqttConnectionOptions options = new MqttConnectionOptions();
+        options.setAutomaticReconnect(true);
+        options.setCleanStart(false);
+        options.setConnectionTimeout(10);
+        IMqttToken connectionStatus = subscriberClient.connect(options);
+        connectionStatus.waitForCompletion();
+        if(subscriberClient.isConnected())
+        {
+            System.out.println("Client " + mqttClientID + " is connected.");
+            System.out.println("-----------------" + connectionStatus.getClient().getClientId());
+            isConnected = true;
+        }
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try
             {
