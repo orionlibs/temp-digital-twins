@@ -1,36 +1,64 @@
 package io.github.orionlibs.orion_digital_twin.broker;
 
-import com.hivemq.configuration.service.InternalConfigurations;
+import com.hivemq.embedded.EmbeddedExtension;
 import com.hivemq.embedded.EmbeddedHiveMQ;
-import com.hivemq.migration.meta.PersistenceType;
+import com.hivemq.extension.sdk.api.ExtensionMain;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.client.ClientContext;
+import com.hivemq.extension.sdk.api.client.parameter.InitializerInput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStartInput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStartOutput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStopInput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStopOutput;
+import com.hivemq.extension.sdk.api.services.Services;
+import com.hivemq.extension.sdk.api.services.intializer.ClientInitializer;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 
 public class MQTTBrokerServer2
 {
-    private final BrokerConnectionConfig config;
     private EmbeddedHiveMQ embeddedHiveMQ;
     private boolean isRunning;
-    //private final ExecutorService clientHandlerPool;
-    //private final ConcurrentHashMap<String, MQTTBrokerClient2> clients;
 
 
-    public MQTTBrokerServer2(BrokerConnectionConfig config)
-    {
-        this.config = config;
-        //this.clientHandlerPool = Executors.newCachedThreadPool();
-        //this.clients = new ConcurrentHashMap<>();
-    }
-
-
-    public void startBroker() throws ExecutionException, InterruptedException
+    public void startBroker() throws ExecutionException, InterruptedException, URISyntaxException
     {
         if(!isRunning)
         {
-            this.embeddedHiveMQ = EmbeddedHiveMQ.builder().build();
-            /*this.embeddedHiveMQ = EmbeddedHiveMQ.builder()
-                        .withConfigurationFolder(Path.of("/path/to/embedded-config-folder"))
-                        .withDataFolder(Path.of("/path/to/embedded-data-folder"))
-                        .withExtensionsFolder(Path.of("/path/to/embedded-extensions-folder"));*/
+            this.embeddedHiveMQ = EmbeddedHiveMQ.builder()
+                            .withConfigurationFolder(Paths.get(this.getClass().getResource("/io/github/orionlibs/orion_digital_twin/configuration").toURI()))
+                            .withEmbeddedExtension(EmbeddedExtension.builder()
+                                            .withId("interceptors")
+                                            .withName("interceptors")
+                                            .withVersion("0.0.1")
+                                            .withExtensionMain(new ExtensionMain()
+                                            {
+                                                @Override
+                                                public void extensionStart(@NotNull ExtensionStartInput extensionStartInput, @NotNull ExtensionStartOutput extensionStartOutput)
+                                                {
+                                                    // create a new client initializer
+                                                    final ClientInitializer clientInitializer = new ClientInitializer()
+                                                    {
+                                                        @Override
+                                                        public void initialize(final @NotNull InitializerInput initializerInput, final @NotNull ClientContext clientContext)
+                                                        {
+                                                            clientContext.addPublishInboundInterceptor(new MQTTPublishInterceptor());
+                                                            clientContext.addSubscribeInboundInterceptor(new MQTTSubscribeInterceptor());
+                                                            clientContext.addUnsubscribeInboundInterceptor(new MQTTUnsubscribeInterceptor());
+                                                        }
+                                                    };
+                                                    Services.initializerRegistry().setClientInitializer(clientInitializer);
+                                                }
+
+
+                                                @Override
+                                                public void extensionStop(@NotNull ExtensionStopInput extensionStopInput, @NotNull ExtensionStopOutput extensionStopOutput)
+                                                {
+                                                    System.out.println("extension stopped");
+                                                }
+                                            })
+                                            .build()).build();
             try
             {
                 //InternalConfigurations.PAYLOAD_PERSISTENCE_TYPE.set(PersistenceType.FILE);
@@ -42,10 +70,6 @@ public class MQTTBrokerServer2
             {
                 ex.printStackTrace();
             }
-            /*finally
-            {
-                embeddedHiveMQ.close();
-            }*/
         }
     }
 

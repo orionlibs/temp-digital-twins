@@ -15,11 +15,11 @@ import io.github.orionlibs.orion_digital_twin.ATest;
 import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketsDAO;
 import io.github.orionlibs.orion_digital_twin.remote_data.TopicSubscribersDAO;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -34,7 +34,7 @@ public class MQTTBrokerServerTest4 extends ATest
 
 
     @BeforeEach
-    void setUp() throws ExecutionException, InterruptedException
+    void setUp() throws ExecutionException, InterruptedException, URISyntaxException
     {
         resetAndSeedDatabase();
         BrokerConnectionConfig config = new BrokerConnectionConfig();
@@ -57,7 +57,7 @@ public class MQTTBrokerServerTest4 extends ATest
 
 
     @Test
-    //@Disabled
+        //@Disabled
     void testBrokerStartup()
     {
         assertTrue(brokerServer.isRunning(), "Broker should be running after startup");

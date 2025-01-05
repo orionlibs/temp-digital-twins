@@ -1,234 +1,98 @@
 package io.github.orionlibs.orion_digital_twin.broker;
 
-import io.moquette.broker.Server;
-import io.moquette.broker.config.IConfig;
-import io.moquette.broker.config.MemoryConfig;
-import io.moquette.interception.InterceptHandler;
-import io.moquette.interception.messages.InterceptAcknowledgedMessage;
-import io.moquette.interception.messages.InterceptConnectMessage;
-import io.moquette.interception.messages.InterceptConnectionLostMessage;
-import io.moquette.interception.messages.InterceptDisconnectMessage;
-import io.moquette.interception.messages.InterceptPublishMessage;
-import io.moquette.interception.messages.InterceptSubscribeMessage;
-import io.moquette.interception.messages.InterceptUnsubscribeMessage;
-import java.util.Properties;
-import org.eclipse.paho.mqttv5.common.MqttMessage;
+import com.hivemq.embedded.EmbeddedExtension;
+import com.hivemq.embedded.EmbeddedHiveMQ;
+import com.hivemq.extension.sdk.api.ExtensionMain;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.client.ClientContext;
+import com.hivemq.extension.sdk.api.client.parameter.InitializerInput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStartInput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStartOutput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStopInput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStopOutput;
+import com.hivemq.extension.sdk.api.services.Services;
+import com.hivemq.extension.sdk.api.services.intializer.ClientInitializer;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
+import java.util.concurrent.ExecutionException;
 
 public class MQTTBrokerServer
 {
-    private BrokerConnectionConfig config;
-    private Server mqttServer;
-    private boolean isRunning;
     private MQTTBroker broker;
+    private EmbeddedHiveMQ embeddedHiveMQ;
+    private boolean isRunning;
 
 
-    public MQTTBrokerServer(BrokerConnectionConfig config)
+    public MQTTBrokerServer()
     {
-        this.config = config;
         this.broker = new MQTTBroker();
     }
 
 
-    public void startBroker()
+    public void startBroker() throws ExecutionException, InterruptedException, URISyntaxException
     {
-        // Use config to start the broker, for example:
-        if(config.isSecure())
+        if(!isRunning)
         {
-            startSecureBroker(config.getHost(), config.getPort(), config.getUsername(), config.getPassword());
-        }
-        else
-        {
-            startInsecureBroker(config.getHost(), config.getPort());
-        }
-    }
+            this.embeddedHiveMQ = EmbeddedHiveMQ.builder()
+                            .withConfigurationFolder(Paths.get(this.getClass().getResource("/io/github/orionlibs/orion_digital_twin/configuration").toURI()))
+                            .withEmbeddedExtension(EmbeddedExtension.builder()
+                                            .withId("interceptors")
+                                            .withName("interceptors")
+                                            .withVersion("0.0.1")
+                                            .withExtensionMain(new ExtensionMain()
+                                            {
+                                                @Override
+                                                public void extensionStart(@NotNull ExtensionStartInput extensionStartInput, @NotNull ExtensionStartOutput extensionStartOutput)
+                                                {
+                                                    final ClientInitializer clientInitializer = new ClientInitializer()
+                                                    {
+                                                        @Override
+                                                        public void initialize(final @NotNull InitializerInput initializerInput, final @NotNull ClientContext clientContext)
+                                                        {
+                                                            clientContext.addPublishInboundInterceptor(new MQTTPublishInterceptor());
+                                                            clientContext.addSubscribeInboundInterceptor(new MQTTSubscribeInterceptor());
+                                                            clientContext.addUnsubscribeInboundInterceptor(new MQTTUnsubscribeInterceptor());
+                                                        }
+                                                    };
+                                                    Services.initializerRegistry().setClientInitializer(clientInitializer);
+                                                }
 
 
-    private void startSecureBroker(String host, int port, String username, String password)
-    {
-        try
-        {
-            // Create broker configuration
-            Properties configProps = new Properties();
-            configProps.setProperty(IConfig.HOST_PROPERTY_NAME, host);
-            configProps.setProperty(IConfig.PORT_PROPERTY_NAME, String.valueOf(port));
-            configProps.setProperty(IConfig.ENABLE_TELEMETRY_NAME, "false");
-            //configProps.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, "false");
-            //configProps.setProperty(IConfig.DATA_PATH_PROPERTY_NAME, "/currentDir/data");
-            configProps.setProperty("password_file", "password.conf"); // File defining users/passwords
-            configProps.setProperty("ssl_port", String.valueOf(port));
-            configProps.setProperty("jks_path", "keystore.jks"); // Path to your Java keystore
-            configProps.setProperty("key_store_password", "keystorePassword");
-            configProps.setProperty("key_manager_password", "keyManagerPassword");
-            IConfig brokerConfig = new MemoryConfig(configProps);
-            // Start the broker
-            mqttServer = new Server();
-            mqttServer.startServer(brokerConfig);
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                if(mqttServer != null)
-                {
-                    mqttServer.stopServer();
-                }
-            }));
-            System.out.println("Secure MQTT Broker started on " + host + ":" + port);
-            this.isRunning = true;
-        }
-        catch(Exception e)
-        {
-            this.isRunning = false;
-            throw new RuntimeException("Failed to start secure MQTT broker: " + e.getMessage(), e);
-        }
-    }
-
-
-    private void startInsecureBroker(String host, int port)
-    {
-        try
-        {
-            Properties configProps = new Properties();
-            configProps.setProperty(IConfig.HOST_PROPERTY_NAME, host);
-            configProps.setProperty(IConfig.PORT_PROPERTY_NAME, String.valueOf(port));
-            configProps.setProperty(IConfig.ENABLE_TELEMETRY_NAME, "false");
-            configProps.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, "false");
-            //configProps.setProperty(IConfig.DATA_PATH_PROPERTY_NAME, "/currentDir/data");
-            IConfig brokerConfig = new MemoryConfig(configProps);
-            mqttServer = new Server();
-            mqttServer.startServer(brokerConfig);
-            mqttServer.addInterceptHandler(new InterceptHandler()
+                                                @Override
+                                                public void extensionStop(@NotNull ExtensionStopInput extensionStopInput, @NotNull ExtensionStopOutput extensionStopOutput)
+                                                {
+                                                    System.out.println("extension stopped");
+                                                }
+                                            })
+                                            .build()).build();
+            try
             {
-                @Override public String getID()
-                {
-                    return "";
-                }
-
-
-                @Override public Class<?>[] getInterceptedMessageTypes()
-                {
-                    return new Class[0];
-                }
-
-
-                @Override public void onConnect(InterceptConnectMessage interceptConnectMessage)
-                {
-                    System.out.println("onConnect");
-                }
-
-
-                @Override public void onDisconnect(InterceptDisconnectMessage interceptDisconnectMessage)
-                {
-                    System.out.println("onDisconnect");
-                }
-
-
-                @Override public void onConnectionLost(InterceptConnectionLostMessage interceptConnectionLostMessage)
-                {
-                    System.out.println("onConnectionLost");
-                }
-
-
-                @Override public void onPublish(InterceptPublishMessage interceptPublishMessage)
-                {
-                    System.out.println("onPublish");
-                }
-
-
-                @Override public void onSubscribe(InterceptSubscribeMessage interceptSubscribeMessage)
-                {
-                    System.out.println("onSubscribe");
-                }
-
-
-                @Override public void onUnsubscribe(InterceptUnsubscribeMessage interceptUnsubscribeMessage)
-                {
-                    System.out.println("onUnsubscribe");
-                }
-
-
-                @Override public void onMessageAcknowledged(InterceptAcknowledgedMessage interceptAcknowledgedMessage)
-                {
-                    System.out.println("onMessageAcknowledged");
-                }
-
-
-                @Override public void onSessionLoopError(Throwable throwable)
-                {
-                    System.out.println("onSessionLoopError");
-                }
-            });
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                if(mqttServer != null)
-                {
-                    mqttServer.stopServer();
-                }
-            }));
-            System.out.println("Insecure MQTT Broker started on " + host + ":" + port);
-            this.isRunning = true;
-        }
-        catch(Exception e)
-        {
-            this.isRunning = false;
-            throw new RuntimeException("Failed to start insecure MQTT broker: " + e.getMessage(), e);
+                //InternalConfigurations.PAYLOAD_PERSISTENCE_TYPE.set(PersistenceType.FILE);
+                //InternalConfigurations.RETAINED_MESSAGE_PERSISTENCE_TYPE.set(PersistenceType.FILE);
+                embeddedHiveMQ.start().join();
+                this.isRunning = true;
+            }
+            catch(final Exception ex)
+            {
+                ex.printStackTrace();
+            }
         }
     }
 
 
     public void stopBroker()
     {
-        if(mqttServer != null)
+        if(isRunning && embeddedHiveMQ != null)
         {
             try
             {
-                mqttServer.stopServer();
-                mqttServer = null;
-                isRunning = false;
-                System.out.println("MQTT Broker stopped successfully.");
+                embeddedHiveMQ.stop().join();
+                this.isRunning = false;
             }
-            catch(Exception e)
+            catch(final Exception ex)
             {
-                System.err.println("Error stopping MQTT Broker: " + e.getMessage());
+                ex.printStackTrace();
             }
-        }
-        else
-        {
-            System.out.println("MQTT Broker cannot stop, because it is already stopped.");
-        }
-    }
-
-
-    public void subscribe(String topic, String clientId) throws MQTTServerNotRunningException
-    {
-        if(mqttServer != null && isRunning)
-        {
-            broker.subscribe(topic, clientId);
-        }
-        else
-        {
-            throw new MQTTServerNotRunningException();
-        }
-    }
-
-
-    public void unsubscribe(String topic, String clientId) throws MQTTServerNotRunningException
-    {
-        if(mqttServer != null && isRunning)
-        {
-            broker.unsubscribe(topic, clientId);
-        }
-        else
-        {
-            throw new MQTTServerNotRunningException();
-        }
-    }
-
-
-    public void publish(String topic, MqttMessage message) throws MQTTServerNotRunningException
-    {
-        if(mqttServer != null && isRunning)
-        {
-            broker.publish(topic, message);
-        }
-        else
-        {
-            throw new MQTTServerNotRunningException();
         }
     }
 
