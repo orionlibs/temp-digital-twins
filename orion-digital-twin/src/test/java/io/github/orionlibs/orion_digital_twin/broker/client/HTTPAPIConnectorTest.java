@@ -19,7 +19,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 @TestInstance(Lifecycle.PER_CLASS)
 //@Execution(ExecutionMode.CONCURRENT)
-public class HttpApiConnectorTest extends ATest
+public class HTTPAPIConnectorTest extends ATest
 {
     private HttpClient mockHttpClient;
     private HttpResponse<String> mockResponse;
