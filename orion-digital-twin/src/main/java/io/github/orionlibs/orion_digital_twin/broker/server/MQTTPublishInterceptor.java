@@ -1,4 +1,4 @@
-package io.github.orionlibs.orion_digital_twin.broker;
+package io.github.orionlibs.orion_digital_twin.broker.server;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundInterceptor;

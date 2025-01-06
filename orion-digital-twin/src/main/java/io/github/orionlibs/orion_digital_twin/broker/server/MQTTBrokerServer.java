@@ -1,4 +1,4 @@
-package io.github.orionlibs.orion_digital_twin.broker;
+package io.github.orionlibs.orion_digital_twin.broker.server;
 
 import com.hivemq.embedded.EmbeddedExtension;
 import com.hivemq.embedded.EmbeddedHiveMQ;
