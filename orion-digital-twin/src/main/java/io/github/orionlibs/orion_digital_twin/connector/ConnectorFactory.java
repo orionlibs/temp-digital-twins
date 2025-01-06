@@ -13,10 +13,12 @@ public class ConnectorFactory
 
     public static Mqtt5BlockingClient newMqttConnector(String brokerUrl, int port, String clientId)
     {
-        return Mqtt5Client.builder()
+        Mqtt5BlockingClient testClient = Mqtt5Client.builder()
                         .identifier(clientId)
-                        .serverHost(brokerUrl)
-                        .serverPort(port)
+                        .serverHost("0.0.0.0")
+                        .serverPort(1883)
                         .buildBlocking();
+        testClient.connect();
+        return testClient;
     }
 }

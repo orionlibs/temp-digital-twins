@@ -23,7 +23,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 @TestInstance(Lifecycle.PER_CLASS)
 //@Execution(ExecutionMode.CONCURRENT)
-public class MQTTBrokerServerTest4 extends ATest
+public class MQTTBrokerServerTest extends ATest
 {
     private MQTTBrokerServer brokerServer;
     private Mqtt5BlockingClient testClient;
@@ -60,19 +60,19 @@ public class MQTTBrokerServerTest4 extends ATest
     @Test
     void testPublishAndSubscribeAndUnsubscribeAndPersistenceAfterMQTTServerShutdown()
     {
-        testClient = getClient(clientID);
+        startClient(clientID);
         assertEquals(0, TopicSubscribersDAO.getNumberOfRecords());
         testClient.subscribe(Mqtt5Subscribe.builder()
-                        .addSubscription(Mqtt5Subscription.builder().topicFilter("test/topic1").qos(MqttQos.AT_MOST_ONCE).build())
+                        .addSubscription(Mqtt5Subscription.builder().topicFilter("test/topic1").qos(MqttQos.EXACTLY_ONCE).build())
                         .build());
         testClient.subscribe(Mqtt5Subscribe.builder()
-                        .addSubscription(Mqtt5Subscription.builder().topicFilter("test/topic2").qos(MqttQos.AT_MOST_ONCE).build())
+                        .addSubscription(Mqtt5Subscription.builder().topicFilter("test/topic2").qos(MqttQos.EXACTLY_ONCE).build())
                         .build());
         assertEquals(2, TopicSubscribersDAO.getNumberOfRecords());
         assertEquals(0, DataPacketsDAO.getNumberOfRecords());
         testClient.publish(Mqtt5WillPublish.builder()
                         .topic("test/topic1")
-                        .qos(MqttQos.AT_MOST_ONCE)
+                        .qos(MqttQos.EXACTLY_ONCE)
                         .payload("somePayload1".getBytes())
                         .build());
         assertEquals(1, DataPacketsDAO.getNumberOfRecords());
@@ -83,28 +83,8 @@ public class MQTTBrokerServerTest4 extends ATest
     }
 
 
-    /*@Test
-    void testUsingMQTTBrokerServerWhenIsNotRunning()
+    private void startClient(String clientId)
     {
-        testClient = getClient("testClientId");
-        brokerServer.stopBroker();
-        MQTTClientNotRunningException exception1 = assertThrows(MQTTClientNotRunningException.class, () -> {
-            testClient.subscribe("/topic1/hello");
-        });
-        MqttProperties props = new MqttProperties();
-        props.setMaximumQoS(2);
-        MqttMessage message = new MqttMessage("Hello World!!".getBytes(UTF_8), 2, true, props);
-        MQTTClientNotRunningException exception2 = assertThrows(MQTTClientNotRunningException.class, () -> {
-            testClient.publish("/topic1/hello", message);
-        });
-        MQTTClientNotRunningException exception3 = assertThrows(MQTTClientNotRunningException.class, () -> {
-            testClient.unsubscribe("/topic1/hello");
-        });
-    }*/
-
-
-    private static Mqtt5BlockingClient getClient(String clientId)
-    {
-        return ConnectorFactory.newMqttConnector("0.0.0.0", 1883, clientId);
+        this.testClient = ConnectorFactory.newMqttConnector("0.0.0.0", 1883, clientId);
     }
 }

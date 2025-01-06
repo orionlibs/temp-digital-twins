@@ -8,6 +8,7 @@ import com.hivemq.extension.sdk.api.packets.general.Qos;
 import io.github.orionlibs.orion_calendar.SQLTimestamp;
 import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketModel;
 import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketsDAO;
+import java.nio.ByteBuffer;
 
 public class MQTTPublishInterceptor implements PublishInboundInterceptor
 {
@@ -21,8 +22,14 @@ public class MQTTPublishInterceptor implements PublishInboundInterceptor
         {
             SQLTimestamp payloadPyblicationDateTime = SQLTimestamp.of(publishInboundOutput.getPublishPacket().getTimestamp());
             int qualityOfServiceLevel = publishInboundOutput.getPublishPacket().getQos().getQosNumber();
-            publishInboundOutput.getPublishPacket().getPayload().ifPresent(payload -> this.storePayloadToDatabase(clientId, topic, new String(payload.array()), qualityOfServiceLevel, payloadPyblicationDateTime));
-            //storePayloadToDatabase(clientId, topic, publishInboundOutput.getPublishPacket().getQos().getQosNumber());
+            if(publishInboundOutput.getPublishPacket().getPayload().isPresent())
+            {
+                ByteBuffer buffer = publishInboundOutput.getPublishPacket().getPayload().get();
+                byte[] bytes = new byte[buffer.remaining()];
+                buffer.get(bytes);
+                String payload = new String(bytes);
+                storePayloadToDatabase(clientId, topic, payload, qualityOfServiceLevel, payloadPyblicationDateTime);
+            }
         }
         // Optional: Modify the publish message
         // publishInboundOutput.getPublishPacket().setPayload(...);
