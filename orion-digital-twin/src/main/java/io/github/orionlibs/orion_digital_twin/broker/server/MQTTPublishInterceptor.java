@@ -28,6 +28,7 @@ public class MQTTPublishInterceptor implements PublishInboundInterceptor
                 byte[] bytes = new byte[buffer.remaining()];
                 buffer.get(bytes);
                 String payload = new String(bytes);
+                //Services.publishService().publishToClient(vdv, clientId);
                 storePayloadToDatabase(clientId, topic, payload, qualityOfServiceLevel, payloadPyblicationDateTime);
             }
         }
