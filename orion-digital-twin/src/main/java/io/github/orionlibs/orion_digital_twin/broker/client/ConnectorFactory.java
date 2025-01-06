@@ -5,9 +5,9 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 
 public class ConnectorFactory
 {
-    public static HttpApiConnector newHttpApiConnector(String apiUrl, String apiKey, String method)
+    public static HTTPAPIConnector newHttpApiConnector(String apiUrl, String apiKey, String method)
     {
-        return new HttpApiConnector(apiUrl, apiKey, method);
+        return new HTTPAPIConnector(apiUrl, apiKey, method);
     }
 
 

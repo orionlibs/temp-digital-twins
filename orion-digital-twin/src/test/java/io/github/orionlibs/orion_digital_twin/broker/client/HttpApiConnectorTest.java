@@ -23,7 +23,7 @@ public class HttpApiConnectorTest extends ATest
 {
     private HttpClient mockHttpClient;
     private HttpResponse<String> mockResponse;
-    private HttpApiConnector connector;
+    private HTTPAPIConnector connector;
 
 
     @BeforeEach
@@ -33,7 +33,7 @@ public class HttpApiConnectorTest extends ATest
         mockHttpClient = mock(HttpClient.class);
         mockResponse = mock(HttpResponse.class);
         // Initialize connector with a mock API URL and key
-        connector = new HttpApiConnector("https://mock-api.com/data", "mock-api-key", "GET")
+        connector = new HTTPAPIConnector("https://mock-api.com/data", "mock-api-key", "GET")
         {
             @Override
             public void connect()

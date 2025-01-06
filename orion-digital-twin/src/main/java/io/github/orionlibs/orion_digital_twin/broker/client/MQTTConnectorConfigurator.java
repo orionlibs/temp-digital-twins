@@ -12,13 +12,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-class HttpApiConnectorConfigurator implements ConnectorConfigurator
+class MQTTConnectorConfigurator implements ConnectorConfigurator
 {
-    private static final Pattern URL_PATTERN = Pattern.compile("^(http|https)://.+$");
+    private static final Pattern URL_PATTERN = Pattern.compile("^(tcp|mqtt)://.+$");
     private final Map<Object, Object> config;
 
 
-    HttpApiConnectorConfigurator(Map<Object, Object> config)
+    public MQTTConnectorConfigurator(Map<Object, Object> config)
     {
         this.config = config;
     }
@@ -41,23 +41,30 @@ class HttpApiConnectorConfigurator implements ConnectorConfigurator
         {
             errorsFound.add("Configuration must include an 'dataSourceType' key.");
         }
-        if(!config.containsKey("apiUrl"))
+        if(!config.containsKey("brokerUrl"))
         {
-            errorsFound.add("Configuration must include an 'apiUrl' key.");
+            errorsFound.add("Configuration must include a 'brokerUrl' key.");
         }
-        if(!config.containsKey("apiKey"))
+        if(!config.containsKey("topic"))
         {
-            errorsFound.add("Configuration must include an 'apiKey' key.");
+            errorsFound.add("Configuration must include a 'topic' key.");
         }
-        String url = (String)config.get("apiUrl");
+        if(!config.containsKey("clientId"))
+        {
+            errorsFound.add("Configuration must include a 'clientId' key.");
+        }
+        if(!config.containsKey("username"))
+        {
+            errorsFound.add("Configuration must include a 'username' key.");
+        }
+        if(!config.containsKey("password"))
+        {
+            errorsFound.add("Configuration must include a 'password' key.");
+        }
+        String url = (String)config.get("brokerUrl");
         if(!URL_PATTERN.matcher(url).matches())
         {
             errorsFound.add("Invalid URL format: " + url);
-        }
-        // Validate optional authentication details
-        if(!config.containsKey("method"))
-        {
-            errorsFound.add("Configuration must include an HTTP 'method' key.");
         }
         errorWrapper.errors = errorsFound;
         return errorWrapper;

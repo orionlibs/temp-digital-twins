@@ -49,11 +49,11 @@ public class ConnectorConfigurationService
             String dataSourceType = (String)config.get("dataSourceType");
             if(DataSourceType.HttpApi.get().equals(dataSourceType))
             {
-                this.configurator = new HttpApiConnectorConfigurator(config);
+                this.configurator = new HTTPAPIConnectorConfigurator(config);
             }
             else if(DataSourceType.Mqtt.get().equals(dataSourceType))
             {
-                this.configurator = new MqttConnectorConfigurator(config);
+                this.configurator = new MQTTConnectorConfigurator(config);
             }
             if(configurator != null)
             {

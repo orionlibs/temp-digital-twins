@@ -10,7 +10,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-public class HttpApiConnector implements Connector
+public class HTTPAPIConnector implements Connector
 {
     private final String apiUrl;
     private final String apiKey;
@@ -21,7 +21,7 @@ public class HttpApiConnector implements Connector
     private boolean connected;
 
 
-    public HttpApiConnector(String apiUrl, String apiKey, String method)
+    public HTTPAPIConnector(String apiUrl, String apiKey, String method)
     {
         this.apiUrl = apiUrl;
         this.apiKey = apiKey;
@@ -73,7 +73,7 @@ public class HttpApiConnector implements Connector
         disconnect();
         if(response.statusCode() == 200)
         {
-            dataRecords = HttpResponseParser.parseResponse(response.body());
+            dataRecords = HTTPResponseParser.parseResponse(response.body());
         }
         else
         {
