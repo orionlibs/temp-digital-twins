@@ -48,9 +48,6 @@ public class MQTTBrokerServer
                                                         }
                                                     };
                                                     Services.initializerRegistry().setClientInitializer(clientInitializer);
-                                                    //Services.clientService().iterateAllClients();
-                                                    //Services.publishService().publishToClient();
-                                                    //Services.subscriptionStore().iterateAllSubscribersWithTopicFilter();
                                                 }
 
 
