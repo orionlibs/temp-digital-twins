@@ -28,11 +28,12 @@ SET FOREIGN_KEY_CHECKS = 0;
 CREATE TABLE remote_data.data_packets
 (
     dataPacketID BIGINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    clientId TEXT,
+    subscriberId TEXT,
+    publisherId TEXT,
     topic TEXT,
     content TEXT,
     qualityOfServiceLevel INT,
-    isDeliveredToClient BIT(1),
+    isDeliveredToSubscriber BIT(1),
     publicationDateTime DATETIME
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
 

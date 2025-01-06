@@ -18,9 +18,11 @@ public class Databases
     public static final String remoteDataDatabase = "remote_data";
     public static final String tableDataPackets = "." + "data_packets";
     public static final String dataPacketID = "dataPacketID";
+    public static final String subscriberId = "subscriberId";
+    public static final String publisherId = "publisherId";
     public static final String content = "content";
     public static final String qualityOfServiceLevel = "qualityOfServiceLevel";
-    public static final String isDeliveredToClient = "isDeliveredToClient";
+    public static final String isDeliveredToSubscriber = "isDeliveredToSubscriber";
     public static final String publicationDateTime = "publicationDateTime";
     public static final String tableTopicSubscribers = "." + "topic_subscribers";
     public static final String topicSubscriberID = "topicSubscriberID";

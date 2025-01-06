@@ -15,15 +15,15 @@ public class DataPacketsDAO
     }
 
 
-    public static long getNumberOfRecordsForClientId(String clientId)
+    public static long getNumberOfRecordsForSubscriberId(String subscriberId)
     {
         DataPacketModel model = DataPacketModel.builder()
-                        .clientId(clientId)
+                        .subscriberId(subscriberId)
                         .build();
         return MySQL.getNumberOfRecords(model,
                         Databases.tableDataPackets,
                         Databases.remoteDataDatabase,
-                        Arrays.asList(Databases.clientId));
+                        Arrays.asList(Databases.subscriberId));
     }
 
 
@@ -42,26 +42,26 @@ public class DataPacketsDAO
     public static long getNumberOfRecordsForUndeliveredMessages()
     {
         DataPacketModel model = DataPacketModel.builder()
-                        .isDeliveredToClient(Boolean.FALSE)
+                        .isDeliveredToSubscriber(Boolean.FALSE)
                         .build();
         return MySQL.getNumberOfRecords(model,
                         Databases.tableDataPackets,
                         Databases.remoteDataDatabase,
-                        Arrays.asList(Databases.isDeliveredToClient));
+                        Arrays.asList(Databases.isDeliveredToSubscriber));
     }
 
 
-    public static long getNumberOfRecordsForUndeliveredMessagesForClientId(String clientId)
+    public static long getNumberOfRecordsForUndeliveredMessagesForSubscriberId(String subscriberId)
     {
         DataPacketModel model = DataPacketModel.builder()
-                        .clientId(clientId)
-                        .isDeliveredToClient(Boolean.FALSE)
+                        .subscriberId(subscriberId)
+                        .isDeliveredToSubscriber(Boolean.FALSE)
                         .build();
         return MySQL.getNumberOfRecords(model,
                         Databases.tableDataPackets,
                         Databases.remoteDataDatabase,
                         Arrays.asList(Databases.clientId,
-                                        Databases.isDeliveredToClient));
+                                        Databases.isDeliveredToSubscriber));
     }
 
 
@@ -79,15 +79,15 @@ public class DataPacketsDAO
     }
 
 
-    public static List<DataPacketModel> getAllForClientId(String clientId)
+    public static List<DataPacketModel> getAllForSubscriberId(String subscriberId)
     {
         DataPacketModel model = DataPacketModel.builder()
-                        .clientId(clientId)
+                        .subscriberId(subscriberId)
                         .build();
         List<Object> temp = MySQL.getModels(model,
                         Databases.tableDataPackets,
                         Databases.remoteDataDatabase,
-                        Arrays.asList(Databases.clientId));
+                        Arrays.asList(Databases.subscriberId));
         List<DataPacketModel> results = new ArrayList<>();
         if(temp != null && !temp.isEmpty())
         {
@@ -115,17 +115,17 @@ public class DataPacketsDAO
     }
 
 
-    public static List<DataPacketModel> getAllUndeliveredForClientIdInChronologicalOrder(String clientId)
+    public static List<DataPacketModel> getAllUndeliveredForSubscriberIdInChronologicalOrder(String subscriberId)
     {
         DataPacketModel model = DataPacketModel.builder()
-                        .clientId(clientId)
-                        .isDeliveredToClient(Boolean.FALSE)
+                        .subscriberId(subscriberId)
+                        .isDeliveredToSubscriber(Boolean.FALSE)
                         .build();
         List<Object> temp = MySQL.getModelsWithAscendingOrder(model,
                         Databases.tableDataPackets,
                         Databases.remoteDataDatabase,
-                        Arrays.asList(Databases.clientId,
-                                        Databases.isDeliveredToClient),
+                        Arrays.asList(Databases.subscriberId,
+                                        Databases.isDeliveredToSubscriber),
                         Databases.publicationDateTime);
         List<DataPacketModel> results = new ArrayList<>();
         if(temp != null && !temp.isEmpty())
@@ -136,17 +136,17 @@ public class DataPacketsDAO
     }
 
 
-    public static List<DataPacketModel> getAllUndeliveredForClientIdInReverseChronologicalOrder(String clientId)
+    public static List<DataPacketModel> getAllUndeliveredForSubscriberIdInReverseChronologicalOrder(String subscriberId)
     {
         DataPacketModel model = DataPacketModel.builder()
-                        .clientId(clientId)
-                        .isDeliveredToClient(Boolean.FALSE)
+                        .subscriberId(subscriberId)
+                        .isDeliveredToSubscriber(Boolean.FALSE)
                         .build();
         List<Object> temp = MySQL.getModelsWithDescendingOrder(model,
                         Databases.tableDataPackets,
                         Databases.remoteDataDatabase,
-                        Arrays.asList(Databases.clientId,
-                                        Databases.isDeliveredToClient),
+                        Arrays.asList(Databases.subscriberId,
+                                        Databases.isDeliveredToSubscriber),
                         Databases.publicationDateTime);
         List<DataPacketModel> results = new ArrayList<>();
         if(temp != null && !temp.isEmpty())
@@ -157,19 +157,19 @@ public class DataPacketsDAO
     }
 
 
-    public static List<DataPacketModel> getAllUndeliveredForClientIdAndTopicInChronologicalOrder(String clientId, String topic)
+    public static List<DataPacketModel> getAllUndeliveredForSubscriberIdAndTopicInChronologicalOrder(String subscriberId, String topic)
     {
         DataPacketModel model = DataPacketModel.builder()
-                        .clientId(clientId)
+                        .subscriberId(subscriberId)
                         .topic(topic)
-                        .isDeliveredToClient(Boolean.FALSE)
+                        .isDeliveredToSubscriber(Boolean.FALSE)
                         .build();
         List<Object> temp = MySQL.getModelsWithAscendingOrder(model,
                         Databases.tableDataPackets,
                         Databases.remoteDataDatabase,
-                        Arrays.asList(Databases.clientId,
+                        Arrays.asList(Databases.subscriberId,
                                         Databases.topic,
-                                        Databases.isDeliveredToClient),
+                                        Databases.isDeliveredToSubscriber),
                         Databases.publicationDateTime);
         List<DataPacketModel> results = new ArrayList<>();
         if(temp != null && !temp.isEmpty())
@@ -180,19 +180,19 @@ public class DataPacketsDAO
     }
 
 
-    public static List<DataPacketModel> getAllUndeliveredForClientIdAndTopicInReverseChronologicalOrder(String clientId, String topic)
+    public static List<DataPacketModel> getAllUndeliveredForSubscriberIdAndTopicInReverseChronologicalOrder(String subscriberId, String topic)
     {
         DataPacketModel model = DataPacketModel.builder()
-                        .clientId(clientId)
+                        .subscriberId(subscriberId)
                         .topic(topic)
-                        .isDeliveredToClient(Boolean.FALSE)
+                        .isDeliveredToSubscriber(Boolean.FALSE)
                         .build();
         List<Object> temp = MySQL.getModelsWithDescendingOrder(model,
                         Databases.tableDataPackets,
                         Databases.remoteDataDatabase,
-                        Arrays.asList(Databases.clientId,
+                        Arrays.asList(Databases.subscriberId,
                                         Databases.topic,
-                                        Databases.isDeliveredToClient),
+                                        Databases.isDeliveredToSubscriber),
                         Databases.publicationDateTime);
         List<DataPacketModel> results = new ArrayList<>();
         if(temp != null && !temp.isEmpty())
@@ -239,16 +239,16 @@ public class DataPacketsDAO
     }
 
 
-    public static int deleteDataPacketsForTopicAndClientId(String topic, String clientId)
+    public static int deleteDataPacketsForTopicAndClientId(String topic, String subscriberId)
     {
         DataPacketModel model = DataPacketModel.builder()
-                        .clientId(clientId)
+                        .subscriberId(subscriberId)
                         .topic(topic)
                         .build();
         return MySQL.deleteModel(model,
                         Databases.tableDataPackets,
                         Databases.remoteDataDatabase,
-                        Arrays.asList(Databases.topic,
-                                        Databases.clientId));
+                        Arrays.asList(Databases.subscriberId,
+                                        Databases.topic));
     }
 }

@@ -18,11 +18,12 @@ import lombok.Setter;
 public class DataPacketModel implements OrionModel
 {
     private Long dataPacketID;
-    private String clientId;
+    private String subscriberId;
+    private String publisherId;
     private String topic;
     private String content;
     private Integer qualityOfServiceLevel;
-    private Boolean isDeliveredToClient;
+    private Boolean isDeliveredToSubscriber;
     private SQLTimestamp publicationDateTime;
 
 

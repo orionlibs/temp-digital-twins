@@ -9,13 +9,14 @@ import io.github.orionlibs.orion_calendar.SQLTimestamp;
 import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketModel;
 import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketsDAO;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
 public class MQTTPublishInterceptor implements PublishInboundInterceptor
 {
     @Override
     public void onInboundPublish(@NotNull PublishInboundInput publishInboundInput, @NotNull PublishInboundOutput publishInboundOutput)
     {
-        String clientId = publishInboundInput.getClientInformation().getClientId();
+        String publisherId = publishInboundInput.getClientInformation().getClientId();
         String topic = publishInboundInput.getPublishPacket().getTopic();
         if(publishInboundOutput.getPublishPacket().getQos() == Qos.AT_LEAST_ONCE
                         || publishInboundOutput.getPublishPacket().getQos() == Qos.EXACTLY_ONCE)
@@ -28,8 +29,11 @@ public class MQTTPublishInterceptor implements PublishInboundInterceptor
                 byte[] bytes = new byte[buffer.remaining()];
                 buffer.get(bytes);
                 String payload = new String(bytes);
-                //Services.publishService().publishToClient(vdv, clientId);
-                storePayloadToDatabase(clientId, topic, payload, qualityOfServiceLevel, payloadPyblicationDateTime);
+                Optional<String> subscriberID = publishInboundOutput.getPublishPacket().getUserProperties().getFirst("subscriberId");
+                if(subscriberID.isPresent())
+                {
+                    storePayloadToDatabase(publisherId, subscriberID.get(), topic, payload, qualityOfServiceLevel, payloadPyblicationDateTime);
+                }
             }
         }
         // Optional: Modify the publish message
@@ -37,14 +41,15 @@ public class MQTTPublishInterceptor implements PublishInboundInterceptor
     }
 
 
-    private void storePayloadToDatabase(String clientId, String topic, String payload, int qualityOfServiceLevel, SQLTimestamp payloadPyblicationDateTime)
+    private void storePayloadToDatabase(String publisherId, String subscriberId, String topic, String payload, int qualityOfServiceLevel, SQLTimestamp payloadPyblicationDateTime)
     {
         DataPacketsDAO.save(DataPacketModel.builder()
-                        .clientId(clientId)
+                        .subscriberId(subscriberId)
+                        .publisherId(publisherId)
                         .topic(topic)
                         .content(payload)
                         .qualityOfServiceLevel(qualityOfServiceLevel)
-                        .isDeliveredToClient(Boolean.FALSE)
+                        .isDeliveredToSubscriber(Boolean.FALSE)
                         .publicationDateTime(payloadPyblicationDateTime)
                         .build());
     }
