@@ -26,6 +26,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 public class MQTTBrokerServerTest extends ATest
 {
     private MQTTBrokerServer brokerServer;
+    //private Mqtt5AsyncClient testClient;
     private Mqtt5BlockingClient testClient;
     private String clientID = "testClientId";
 
@@ -85,6 +86,7 @@ public class MQTTBrokerServerTest extends ATest
 
     private void startClient(String clientId)
     {
-        this.testClient = ConnectorFactory.newMqttConnector("0.0.0.0", 1883, clientId);
+        //this.testClient = ConnectorFactory.newAsynchronousMQTTConnector("0.0.0.0", 1883, clientId);
+        this.testClient = ConnectorFactory.newBlockingMQTTConnector("0.0.0.0", 1883, clientId);
     }
 }
