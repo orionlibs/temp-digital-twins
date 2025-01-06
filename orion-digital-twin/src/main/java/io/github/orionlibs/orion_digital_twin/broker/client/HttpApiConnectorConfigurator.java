@@ -1,4 +1,4 @@
-package io.github.orionlibs.orion_digital_twin.connector;
+package io.github.orionlibs.orion_digital_twin.broker.client;
 
 import io.github.orionlibs.orion_digital_twin.device_details.ConnectionConfigurationModel;
 import io.github.orionlibs.orion_digital_twin.device_details.ConnectionConfigurationsDAO;

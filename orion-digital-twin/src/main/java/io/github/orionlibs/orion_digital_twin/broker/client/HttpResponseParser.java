@@ -1,4 +1,4 @@
-package io.github.orionlibs.orion_digital_twin.connector;
+package io.github.orionlibs.orion_digital_twin.broker.client;
 
 import java.util.ArrayList;
 import java.util.List;

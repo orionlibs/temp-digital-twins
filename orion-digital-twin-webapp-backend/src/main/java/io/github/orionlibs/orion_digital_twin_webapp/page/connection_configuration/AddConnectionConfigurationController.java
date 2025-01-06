@@ -1,6 +1,6 @@
 package io.github.orionlibs.orion_digital_twin_webapp.page.connection_configuration;
 
-import io.github.orionlibs.orion_digital_twin.connector.ConnectorConfigurationService;
+import io.github.orionlibs.orion_digital_twin.broker.client.ConnectorConfigurationService;
 import io.github.orionlibs.orion_digital_twin.device_details.ConnectionConfigurationModel;
 import io.github.orionlibs.orion_digital_twin.device_details.ConnectionConfigurationsDAO;
 import java.io.IOException;
