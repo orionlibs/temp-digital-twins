@@ -34,6 +34,7 @@ public class ConnectionConfigurationDetailsResponseBean extends OrionResponse
         private String apiKey;
         private String httpMethod;
         private String brokerUrl;
+        private String brokerPort;
         private String topic;
         private String clientId;
         private String username;

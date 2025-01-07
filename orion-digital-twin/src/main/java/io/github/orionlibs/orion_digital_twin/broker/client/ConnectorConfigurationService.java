@@ -12,9 +12,9 @@ public class ConnectorConfigurationService
     private ConnectorConfigurator configurator;
 
 
-    public List<String> configureAndSaveToFile(String configAsJSON, String filePathToSaveConfig)
+    public List<String> configureHTTPAPIAndSaveToFile(String configAsJSON, String filePathToSaveConfig)
     {
-        extractAndValidate(configAsJSON);
+        extractAndValidateForHTTPAPI(configAsJSON);
         if(configurator != null)
         {
             try
@@ -30,9 +30,27 @@ public class ConnectorConfigurationService
     }
 
 
-    public List<String> configureAndSaveToDatabase(String configAsJSON)
+    public List<String> configureMQTTAndSaveToFile(String configAsJSON, String filePathToSaveConfig)
     {
-        extractAndValidate(configAsJSON);
+        extractAndValidateForMQTT(configAsJSON);
+        if(configurator != null)
+        {
+            try
+            {
+                configurator.storeToFile(filePathToSaveConfig);
+            }
+            catch(IOException e)
+            {
+                return List.of(e.getMessage());
+            }
+        }
+        return Collections.emptyList();
+    }
+
+
+    public List<String> configureHTTPAPIAndSaveToDatabase(String configAsJSON)
+    {
+        extractAndValidateForHTTPAPI(configAsJSON);
         if(configurator != null)
         {
             configurator.storeToDatabase();
@@ -41,7 +59,41 @@ public class ConnectorConfigurationService
     }
 
 
-    private List<String> extractAndValidate(String configAsJSON)
+    public List<String> configureMQTTAndSaveToDatabase(String configAsJSON)
+    {
+        extractAndValidateForMQTT(configAsJSON);
+        if(configurator != null)
+        {
+            configurator.storeToDatabase();
+        }
+        return Collections.emptyList();
+    }
+
+
+    private List<String> extractAndValidateForMQTT(String configAsJSON)
+    {
+        this.config = JSONService.convertJSONToMap(configAsJSON);
+        if(config != null)
+        {
+            String dataSourceType = (String)config.get("dataSourceType");
+            if(DataSourceType.Mqtt.get().equals(dataSourceType))
+            {
+                this.configurator = new MQTTConnectorConfigurator(config);
+            }
+            if(configurator != null)
+            {
+                ConnectorConfigurator.Errors errorWrapper = configurator.validate();
+                if(!errorWrapper.errors.isEmpty())
+                {
+                    return errorWrapper.errors;
+                }
+            }
+        }
+        return Collections.emptyList();
+    }
+
+
+    private List<String> extractAndValidateForHTTPAPI(String configAsJSON)
     {
         this.config = JSONService.convertJSONToMap(configAsJSON);
         if(config != null)
@@ -50,10 +102,6 @@ public class ConnectorConfigurationService
             if(DataSourceType.HttpApi.get().equals(dataSourceType))
             {
                 this.configurator = new HTTPAPIConnectorConfigurator(config);
-            }
-            else if(DataSourceType.Mqtt.get().equals(dataSourceType))
-            {
-                this.configurator = new MQTTConnectorConfigurator(config);
             }
             if(configurator != null)
             {

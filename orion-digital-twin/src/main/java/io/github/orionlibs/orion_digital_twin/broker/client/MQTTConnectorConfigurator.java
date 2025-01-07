@@ -10,11 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 class MQTTConnectorConfigurator implements ConnectorConfigurator
 {
-    private static final Pattern URL_PATTERN = Pattern.compile("^(tcp|mqtt)://.+$");
     private final Map<Object, Object> config;
 
 
@@ -45,6 +43,10 @@ class MQTTConnectorConfigurator implements ConnectorConfigurator
         {
             errorsFound.add("Configuration must include a 'brokerUrl' key.");
         }
+        if(!config.containsKey("brokerPort"))
+        {
+            errorsFound.add("Configuration must include a 'brokerPort' key.");
+        }
         if(!config.containsKey("topic"))
         {
             errorsFound.add("Configuration must include a 'topic' key.");
@@ -53,19 +55,18 @@ class MQTTConnectorConfigurator implements ConnectorConfigurator
         {
             errorsFound.add("Configuration must include a 'clientId' key.");
         }
-        if(!config.containsKey("username"))
+        if(!config.containsKey("qualityOfServiceLevel"))
+        {
+            errorsFound.add("Configuration must include a 'qualityOfServiceLevel' key.");
+        }
+        /*if(!config.containsKey("username"))
         {
             errorsFound.add("Configuration must include a 'username' key.");
         }
         if(!config.containsKey("password"))
         {
             errorsFound.add("Configuration must include a 'password' key.");
-        }
-        String url = (String)config.get("brokerUrl");
-        if(!URL_PATTERN.matcher(url).matches())
-        {
-            errorsFound.add("Invalid URL format: " + url);
-        }
+        }*/
         errorWrapper.errors = errorsFound;
         return errorWrapper;
     }
@@ -90,14 +91,15 @@ class MQTTConnectorConfigurator implements ConnectorConfigurator
         ConnectionConfigurationsDAO.save(ConnectionConfigurationModel.builder()
                         .dataSourceId((String)config.get("dataSourceId"))
                         .dataSourceType((String)config.get("dataSourceType"))
-                        .apiUrl((String)config.get("apiUrl"))
-                        .apiKey((String)config.get("apiKey"))
-                        .httpMethod((String)config.get("httpMethod"))
+                        //.apiUrl((String)config.get("apiUrl"))
+                        //.apiKey((String)config.get("apiKey"))
+                        //.httpMethod((String)config.get("httpMethod"))
                         .brokerUrl((String)config.get("brokerUrl"))
+                        .brokerPort((String)config.get("brokerPort"))
                         .topic((String)config.get("topic"))
                         .clientId((String)config.get("clientId"))
-                        .username((String)config.get("username"))
-                        .password((String)config.get("password"))
+                        //.username((String)config.get("username"))
+                        //.password((String)config.get("password"))
                         .build());
     }
 }

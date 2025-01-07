@@ -1,2 +1,2 @@
-INSERT INTO data_sources.connection_configurations(dataSourceId, dataSourceType) VALUES ('id1', 'httpApi');
-INSERT INTO data_sources.connection_configurations(dataSourceId, dataSourceType) VALUES ('id2', 'MQTT');
+#INSERT INTO data_sources.connection_configurations(dataSourceId, dataSourceType) VALUES ('id1', 'httpApi');
+#INSERT INTO data_sources.connection_configurations(dataSourceId, dataSourceType) VALUES ('id2', 'MQTT');

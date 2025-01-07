@@ -23,6 +23,8 @@ public class ConnectionConfigurationModel implements OrionModel
     private String apiKey;
     private String httpMethod;
     private String brokerUrl;
+    private String brokerPort;
+    private Integer qualityOfServiceLevel;
     private String topic;
     private String clientId;
     private String username;

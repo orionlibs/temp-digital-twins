@@ -12,6 +12,8 @@ CREATE TABLE data_sources.connection_configurations
     apiKey TEXT,
     httpMethod TEXT,
     brokerUrl TEXT,
+    brokerPort VARCHAR(5),
+    qualityOfServiceLevel INT,
     topic TEXT,
     clientId TEXT,
     username TEXT,

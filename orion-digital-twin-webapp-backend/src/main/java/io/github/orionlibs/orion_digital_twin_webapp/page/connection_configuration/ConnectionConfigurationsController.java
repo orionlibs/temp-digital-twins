@@ -1,10 +1,18 @@
 package io.github.orionlibs.orion_digital_twin_webapp.page.connection_configuration;
 
+import com.hivemq.client.mqtt.datatypes.MqttQos;
+import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
+import io.github.orionlibs.orion_digital_twin.broker.client.ConnectorFactory;
+import io.github.orionlibs.orion_digital_twin.broker.client.RunningMQTTClients;
+import io.github.orionlibs.orion_digital_twin.broker.server.MQTTBrokerServer;
 import io.github.orionlibs.orion_digital_twin.database.Databases;
 import io.github.orionlibs.orion_digital_twin.device_details.ConnectionConfigurationModel;
 import io.github.orionlibs.orion_digital_twin.device_details.ConnectionConfigurationsDAO;
+import io.github.orionlibs.orion_object.UUIDSecurityService;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,11 +57,71 @@ public class ConnectionConfigurationsController
                                         .apiKey(configuration.getApiKey())
                                         .httpMethod(configuration.getHttpMethod())
                                         .brokerUrl(configuration.getBrokerUrl())
+                                        .brokerPort(configuration.getBrokerPort())
                                         .topic(configuration.getTopic())
                                         .clientId(configuration.getClientId())
                                         .username(configuration.getUsername())
                                         .password(configuration.getPassword())
                                         .build())
+                        .build());
+    }
+
+
+    @GetMapping(value = "/MQTT/servers/starts/{connectionConfigurationID}")
+    public ResponseEntity<ConnectionConfigurationsResponseBean> connectionConfigurationsPageStartMQTTBrokerServer(@PathVariable Long connectionConfigurationID)
+    {
+        MQTTBrokerServer brokerServer = new MQTTBrokerServer();
+        try
+        {
+            brokerServer.startBroker();
+            return ResponseEntity.ok(ConnectionConfigurationsResponseBean.builder()
+                            .mqttServerStartStatus("server started")
+                            .build());
+        }
+        catch(ExecutionException e)
+        {
+            return ResponseEntity.badRequest().body(ConnectionConfigurationsResponseBean.builder()
+                            .mqttServerStartStatus(e.getMessage())
+                            .build());
+        }
+        catch(InterruptedException e)
+        {
+            return ResponseEntity.badRequest().body(ConnectionConfigurationsResponseBean.builder()
+                            .mqttServerStartStatus(e.getMessage())
+                            .build());
+        }
+        catch(URISyntaxException e)
+        {
+            return ResponseEntity.badRequest().body(ConnectionConfigurationsResponseBean.builder()
+                            .mqttServerStartStatus(e.getMessage())
+                            .build());
+        }
+    }
+
+
+    @GetMapping(value = "/MQTT/connections/{connectionConfigurationID}")
+    public ResponseEntity<ConnectionConfigurationsResponseBean> connectionConfigurationsPageConnectClientToMQTTBrokerServer(@PathVariable Long connectionConfigurationID)
+    {
+        ConnectionConfigurationModel config = ConnectionConfigurationsDAO.getByID(connectionConfigurationID);
+        Mqtt5AsyncClient client = new ConnectorFactory().newAsynchronousMQTTConnectorForSubscriber(config.getBrokerUrl(), Integer.parseInt(config.getBrokerPort()), config.getTopic(), MqttQos.fromCode(config.getQualityOfServiceLevel()), config.getClientId());
+        String clientIDGenerated = UUIDSecurityService.generateUUIDWithoutHyphens();
+        RunningMQTTClients.idToClientMapper.put(clientIDGenerated, client);
+        return ResponseEntity.ok(ConnectionConfigurationsResponseBean.builder()
+                        .clientConnectionToMQTTServerStatus("client " + clientIDGenerated + " connected")
+                        .build());
+    }
+
+
+    @GetMapping(value = "/MQTT/disconnections/{clientIDGenerated}")
+    public ResponseEntity<ConnectionConfigurationsResponseBean> connectionConfigurationsPageDisconnectClientFromMQTTBrokerServer(@PathVariable String clientIDGenerated)
+    {
+        if(RunningMQTTClients.idToClientMapper.get(clientIDGenerated) != null && RunningMQTTClients.idToClientMapper.get(clientIDGenerated).getConfig().getState().isConnectedOrReconnect())
+        {
+            RunningMQTTClients.idToClientMapper.get(clientIDGenerated).disconnect();
+            RunningMQTTClients.idToClientMapper.remove(clientIDGenerated);
+        }
+        return ResponseEntity.ok(ConnectionConfigurationsResponseBean.builder()
+                        .clientConnectionToMQTTServerStatus("client disconnected")
                         .build());
     }
 }

@@ -10,7 +10,7 @@ $(document).ready(function ()
 
     connectionConfigurationJSONFilesToUpload.addEventListener('change', async () =>
     {
-        orionCommon.uploadFile('http://localhost:8080/wapi/v1/connection-configurations/uploads/json', 'connection-configuration-json-files-to-upload', connectionConfigurations.processSuccessfulConnectionConfigurationAdditionViaJSON);
+        orionCommon.uploadFile('http://localhost:8080/wapi/v1/connection-configurations/MQTT/uploads/json', 'connection-configuration-json-files-to-upload', connectionConfigurations.processConnectionConfigurationAdditionViaJSON);
     });
 
 
@@ -20,17 +20,19 @@ $(document).ready(function ()
         {
             dataSourceId: $("#input-dataSourceId").val(),
             dataSourceType: $("#input-dataSourceType").val(),
-            apiUrl: $("#input-apiUrl").val(),
-            apiKey: $("#input-apiKey").val(),
-            httpMethod: $("#input-httpMethod").val(),
+            //apiUrl: $("#input-apiUrl").val(),
+            //apiKey: $("#input-apiKey").val(),
+            //httpMethod: $("#input-httpMethod").val(),
             brokerUrl: $("#input-brokerUrl").val(),
+            brokerPort: $("#input-brokerPort").val(),
             topic: $("#input-topic").val(),
             clientId: $("#input-clientId").val(),
-            username: $("#input-username").val(),
-            password: $("#input-password").val()
+            qualityOfServiceLevel: $("#input-qualityOfServiceLevel").val()
+            //username: $("#input-username").val(),
+            //password: $("#input-password").val()
         };
 
-        orionCommon.makePostAJAXCall('http://localhost:8080/wapi/v1/connection-configurations', dataToSend, connectionConfigurations.processSuccessfulConnectionConfigurationAddition);
+        orionCommon.makePostAJAXCall('http://localhost:8080/wapi/v1/connection-configurations/MQTT', dataToSend, connectionConfigurations.processConnectionConfigurationAddition);
     });
 
 
@@ -44,17 +46,32 @@ $(document).ready(function ()
             connectionConfigurationID: $("#inputedit-connectionConfigurationID").val(),
             dataSourceId: $("#inputedit-dataSourceId").val(),
             dataSourceType: $("#inputedit-dataSourceType").val(),
-            apiUrl: $("#inputedit-apiUrl").val(),
-            apiKey: $("#inputedit-apiKey").val(),
-            httpMethod: $("#inputedit-httpMethod").val(),
+            //apiUrl: $("#inputedit-apiUrl").val(),
+            //apiKey: $("#inputedit-apiKey").val(),
+            //httpMethod: $("#inputedit-httpMethod").val(),
             brokerUrl: $("#inputedit-brokerUrl").val(),
+            brokerPort: $("#inputedit-brokerPort").val(),
             topic: $("#inputedit-topic").val(),
             clientId: $("#inputedit-clientId").val(),
-            username: $("#inputedit-username").val(),
-            password: $("#inputedit-password").val()
+            qualityOfServiceLevel: $("#inputedit-qualityOfServiceLevel").val()
+            //username: $("#inputedit-username").val(),
+            //password: $("#inputedit-password").val()
         };
 
-        orionCommon.makePutAJAXCall('http://localhost:8080/wapi/v1/connection-configurations', dataToSend, connectionConfigurations.processSuccessfulConnectionConfigurationUpdate);
+        orionCommon.makePutAJAXCall('http://localhost:8080/wapi/v1/connection-configurations/MQTT', dataToSend, connectionConfigurations.processConnectionConfigurationUpdate);
+    });
+
+
+    $('body').on('click', '#disconnect-from-MQTT-broker-server-modal', function(e)
+    {
+        e.preventDefault();
+        $('#disconnect-from-MQTT-broker-server-modal').modal('show');
+    });
+
+
+    $('body').on('click', '#disconnect-from-MQTT-broker-server-button', function(e)
+    {
+        orionCommon.makeGetAJAXCall('http://localhost:8080/wapi/v1/connection-configurations/MQTT/disconnections/' + $("#input-connection-ID-generated").val(), connectionConfigurations.processDisconnectionFromMQTTBrokerServer);
     });
 });
 
@@ -88,7 +105,9 @@ function populateTableOfConnectionConfigurations()
         data.connectionConfigurations.forEach(item =>
         {
             tableBodyHTML += '<tr>';
-            tableBodyHTML += '<td><button id="edit-connection-configuration-ID-' + item.connectionConfigurationID + ' "type="submit" class="btn btn-outline-theme">Edit</button></td>';
+            tableBodyHTML += '<td><button id="edit-connection-configuration-ID-' + item.connectionConfigurationID + ' "type="submit" class="btn btn-outline-info">Edit</button></td>';
+            tableBodyHTML += '<td><button id="connect-to-broker-with-ID-' + item.connectionConfigurationID + ' "type="submit" class="btn btn-outline-theme">Connect</button></td>';
+            tableBodyHTML += '<td><button id="start-broker-server-with-ID-' + item.connectionConfigurationID + ' "type="submit" class="btn btn-outline-theme">Start Server</button></td>';
             tableBodyHTML += '<td>' + index + '</td>';
             tableBodyHTML += '<td>' + item.dataSourceId + '</td>';
             tableBodyHTML += '<td>' + item.dataSourceType + '</td>';
@@ -119,11 +138,12 @@ function populateTableOfConnectionConfigurations()
         $('#connection-configurations-summaries-body').html(tableBodyHTML);
         handleRenderTableData();
 
-        $('body').on('click', '#open-add-connection-configuration-form-modal-button', function(e)
+        $('body').on('click', '#add-connection-configuration-form-modal-button', function(e)
         {
             e.preventDefault();
             $('#add-connection-configuration-form-modal').modal('show');
         });
+
 
         $('body').on('click', '[id^="edit-connection-configuration-ID-"]', function(e)
         {
@@ -136,11 +156,29 @@ function populateTableOfConnectionConfigurations()
             $("#inputedit-apiKey").val();
             $("#inputedit-httpMethod").val();
             $("#inputedit-brokerUrl").val();
+            $("#inputedit-brokerPort").val();
             $("#inputedit-topic").val();
             $("#inputedit-clientId").val();
+            $("#inputedit-qualityOfServiceLevel").val();
             $("#inputedit-username").val();
             $("#inputedit-password").val();
-            orionCommon.makeGetAJAXCall('http://localhost:8080/wapi/v1/connection-configurations/details/' + connectionConfigurationIDToUse, connectionConfigurations.processSuccessfulConnectionConfigurationEditModalPopulation);
+            orionCommon.makeGetAJAXCall('http://localhost:8080/wapi/v1/connection-configurations/details/' + connectionConfigurationIDToUse, connectionConfigurations.processConnectionConfigurationEditModalPopulation);
+        });
+
+
+        $('body').on('click', '[id^="connect-to-broker-with-ID-"]', function(e)
+        {
+            e.preventDefault();
+            let connectionConfigurationIDToUse = $(this).prop("id").substring("connect-to-broker-with-ID-".length);
+            orionCommon.makeGetAJAXCall('http://localhost:8080/wapi/v1/connection-configurations/MQTT/connections/' + connectionConfigurationIDToUse, connectionConfigurations.processConnectionToBroker);
+        });
+
+
+        $('body').on('click', '[id^="start-broker-server-with-ID-"]', function(e)
+        {
+            e.preventDefault();
+            let connectionConfigurationIDToUse = $(this).prop("id").substring("start-broker-server-with-ID-".length);
+            orionCommon.makeGetAJAXCall('http://localhost:8080/wapi/v1/connection-configurations/MQTT/servers/starts/' + connectionConfigurationIDToUse, connectionConfigurations.processBrokerServerStart);
         });
 
 
@@ -148,7 +186,7 @@ function populateTableOfConnectionConfigurations()
         {
             e.preventDefault();
             let connectionConfigurationIDToUse = $(this).prop("id").substring("delete-connection-configuration-ID-".length);
-            orionCommon.makeDeleteAJAXCall('http://localhost:8080/wapi/v1/connection-configurations?connectionConfigurationID=' + connectionConfigurationIDToUse, connectionConfigurations.processSuccessfulConnectionConfigurationDeletion);
+            orionCommon.makeDeleteAJAXCall('http://localhost:8080/wapi/v1/connection-configurations?connectionConfigurationID=' + connectionConfigurationIDToUse, connectionConfigurations.processConnectionConfigurationDeletion);
         });
     })
     .catch(error =>{document.getElementById("connection-configurations-summaries-body").innerHTML = 'Failed to load data:' + error;});
@@ -157,14 +195,14 @@ function populateTableOfConnectionConfigurations()
 
 let connectionConfigurations =
 {
-    processSuccessfulConnectionConfigurationAddition : function(jsonResponse)
+    processConnectionConfigurationAddition : function(jsonResponse)
     {
         $(".close-modal-button").click();
         $("#refresh-connection-configurations-table-button").click();
     },
 
 
-    processSuccessfulConnectionConfigurationAdditionViaJSON : function(jsonResponse)
+    processConnectionConfigurationAdditionViaJSON : function(jsonResponse)
     {
         //alert(jsonResponse);
         $(".close-modal-button").click();
@@ -172,33 +210,56 @@ let connectionConfigurations =
     },
 
 
-    processSuccessfulConnectionConfigurationEditModalPopulation : function(data)
+    processConnectionConfigurationEditModalPopulation : function(data)
     {
         $("#inputedit-connectionConfigurationID").val(data.connectionConfiguration.connectionConfigurationID);
         $("#inputedit-dataSourceId").val(data.connectionConfiguration.dataSourceId);
         $("#inputedit-dataSourceType").val(data.connectionConfiguration.dataSourceType);
-        $("#inputedit-apiUrl").val(data.connectionConfiguration.apiUrl);
-        $("#inputedit-apiKey").val(data.connectionConfiguration.apiKey);
-        $("#inputedit-httpMethod").val(data.connectionConfiguration.httpMethod);
+        //$("#inputedit-apiUrl").val(data.connectionConfiguration.apiUrl);
+        //$("#inputedit-apiKey").val(data.connectionConfiguration.apiKey);
+        //$("#inputedit-httpMethod").val(data.connectionConfiguration.httpMethod);
         $("#inputedit-brokerUrl").val(data.connectionConfiguration.brokerUrl);
+        $("#inputedit-brokerPort").val(data.connectionConfiguration.brokerPort);
         $("#inputedit-topic").val(data.connectionConfiguration.topic);
         $("#inputedit-clientId").val(data.connectionConfiguration.clientId);
-        $("#inputedit-username").val(data.connectionConfiguration.username);
-        $("#inputedit-password").val(data.connectionConfiguration.password);
+        $("#inputedit-qualityOfServiceLevel").val(data.connectionConfiguration.qualityOfServiceLevel);
+        //$("#inputedit-username").val(data.connectionConfiguration.username);
+        //$("#inputedit-password").val(data.connectionConfiguration.password);
         $('#edit-connection-configuration-form-modal').modal('show');
     },
 
 
-    processSuccessfulConnectionConfigurationUpdate : function(data)
+    processConnectionConfigurationUpdate : function(data)
     {
         $(".close-modal-button").click();
         $("#refresh-connection-configurations-table-button").click();
     },
 
 
-    processSuccessfulConnectionConfigurationDeletion : function(data)
+    processConnectionConfigurationDeletion : function(data)
     {
         alert("Deleted");
         $("#refresh-connection-configurations-table-button").click();
+    },
+
+
+    processBrokerServerStart : function(data)
+    {
+        alert(data.mqttServerStartStatus);
+        $("#refresh-connection-configurations-table-button").click();
+    },
+
+
+    processConnectionToBroker : function(data)
+    {
+        alert(data.clientConnectionToMQTTServerStatus);
+        $("#refresh-connection-configurations-table-button").click();
+    },
+
+
+    processDisconnectionFromMQTTBrokerServer : function(data)
+    {
+        alert(data.clientConnectionToMQTTServerStatus);
+        $(".close-modal-button").click();
     }
 }

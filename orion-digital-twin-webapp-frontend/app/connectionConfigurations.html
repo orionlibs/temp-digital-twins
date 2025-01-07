@@ -87,7 +87,7 @@
     <!-- BEGIN #content -->
     <div id="content" class="app-content">
         <!-- BEGIN container -->
-        <div class="container">
+        <!--<div class="container">-->
             <!-- BEGIN row -->
             <div class="row justify-content-center">
                 <!-- BEGIN col-12 -->
@@ -109,13 +109,17 @@
 
                             <!-- BEGIN #datatable -->
                             <div id="connection-configuration-summaries-datatable" class="mb-5">
-                                <h4>Summary of connection configurations <button id="refresh-connection-configurations-table-button" type="submit" class="btn btn-outline-warning">Refresh Table</button> <button type="submit" class="btn btn-outline-theme" data-bs-toggle="modal" data-bs-target="#add-connection-configuration-form-modal">Add Connection</button></h4>
+                                <h4>Summary of connection configurations <button id="refresh-connection-configurations-table-button" type="submit" class="btn btn-outline-warning">Refresh Table</button>
+                                &nbsp;<button type="submit" class="btn btn-outline-theme" data-bs-toggle="modal" data-bs-target="#add-connection-configuration-form-modal">Add MQTT Connection</button>
+                                    &nbsp;<button type="submit" class="btn btn-outline-theme" data-bs-toggle="modal" data-bs-target="#disconnect-from-MQTT-broker-server-modal">Disconnect from MQTT</button></h4>
                                 <div class="card">
                                     <div class="card-body">
                                         <table id="connection-configuration-summaries-table" class="table text-nowrap w-100">
                                             <thead>
                                             <tr>
                                                 <th>Edit</th>
+                                                <th>Connect</th>
+                                                <th>Start Broker</th>
                                                 <th>#</th>
                                                 <th>Data Source ID</th>
                                                 <th>Data Source Type</th>
@@ -142,7 +146,7 @@
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h3 class="modal-title">Add Connection Configuration</h3>
+                                            <h3 class="modal-title">Add MQTT Connection Configuration</h3>
                                             <button type="button" class="close-modal-button btn-close" data-bs-dismiss="modal"></button>
                                         </div>
                                         <div class="modal-body">
@@ -150,7 +154,7 @@
                                                 <div class="d-block d-lg-flex align-items-center">
                                                     <span class="btn btn-outline-info fileinput-button me-2 mb-1">
                                                         <i class="fa fa-fw fa-plus"></i>
-                                                        <span>Upload JSON Connection Configurations</span>
+                                                        <span>Upload JSON MQTT Connection Configurations</span>
                                                         <input id="connection-configuration-json-files-to-upload" type="file" name="files[]" multiple>
                                                     </span>
                                                 </div>
@@ -170,17 +174,17 @@
                                                     <input id="input-dataSourceType" type="text" placeholder="Data Source Type (*)" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
                                             </div>
-                                            <div class="row mb-5">
+                                            <!--<div class="row mb-5">
                                                 <div class="col-md-6">
-                                                    <div>Data Source Type:</div>
+                                                    <div>HTTP API URL:</div>
                                                     <input id="input-apiUrl" type="text" placeholder="HTTP API URL" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <div>Data Source Type:</div>
+                                                    <div>HTTP API Key:</div>
                                                     <input id="input-apiKey" type="text" placeholder="HTTP API Key" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
-                                            </div>
-                                            <div class="row mb-5">
+                                            </div>-->
+                                            <!--<div class="row mb-5">
                                                 <div class="col-md-6">
                                                     <div>Data Source Type:</div>
                                                     <input id="input-httpMethod" type="text" placeholder="HTTP Method" class="form-control form-control-lg" name="icon-filter">
@@ -188,6 +192,16 @@
                                                 <div class="col-md-6">
                                                     <div>Data Source Type:</div>
                                                     <input id="input-brokerUrl" type="text" placeholder="MQTT Broker URL" class="form-control form-control-lg" name="icon-filter">
+                                                </div>
+                                            </div>-->
+                                            <div class="row mb-5">
+                                                <div class="col-md-6">
+                                                    <div>MQTT Broker URL:</div>
+                                                    <input id="input-brokerUrl" type="text" placeholder="MQTT Broker URL" class="form-control form-control-lg" name="icon-filter">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div>Data Source Type:</div>
+                                                    <input id="input-brokerPort" type="text" placeholder="MQTT Broker Port" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
                                             </div>
                                             <div class="row mb-5">
@@ -203,13 +217,19 @@
                                             <div class="row mb-5">
                                                 <div class="col-md-6">
                                                     <div>Data Source Type:</div>
+                                                    <input id="input-qualityOfServiceLevel" type="text" placeholder="MQTT Quality of Service Level" class="form-control form-control-lg" name="icon-filter">
+                                                </div>
+                                            </div>
+                                            <!--<div class="row mb-5">
+                                                <div class="col-md-6">
+                                                    <div>Data Source Type:</div>
                                                     <input id="input-username" type="text" placeholder="MQTT Username" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div>Data Source Type:</div>
                                                     <input id="input-password" type="text" placeholder="MQTT Password" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
-                                            </div>
+                                            </div>-->
 
 
                                             <div class="row mb-5">
@@ -228,7 +248,7 @@
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h3 class="modal-title">Edit Connection Configuration</h3>
+                                            <h3 class="modal-title">Edit MQTT Connection Configuration</h3>
                                             <button type="button" class="close-modal-button btn-close" data-bs-dismiss="modal"></button>
                                         </div>
                                         <div class="modal-body">
@@ -243,37 +263,49 @@
                                                     <input id="inputedit-dataSourceType" type="text" placeholder="Data Source Type (*)" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
                                             </div>
-                                            <div class="row mb-5">
+                                            <!--<div class="row mb-5">
                                                 <div class="col-md-6">
-                                                    <div>Data Source Type:</div>
+                                                    <div>HTTP API URL:</div>
                                                     <input id="inputedit-apiUrl" type="text" placeholder="HTTP API URL" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <div>Data Source Type:</div>
+                                                    <div>HTTP API Key:</div>
                                                     <input id="inputedit-apiKey" type="text" placeholder="HTTP API Key" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
-                                            </div>
-                                            <div class="row mb-5">
+                                            </div>-->
+                                            <!--<div class="row mb-5">
                                                 <div class="col-md-6">
-                                                    <div>Data Source Type:</div>
+                                                    <div>HTTP Method:</div>
                                                     <input id="inputedit-httpMethod" type="text" placeholder="HTTP Method" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
+                                            </div>-->
+                                            <div class="row mb-5">
                                                 <div class="col-md-6">
-                                                    <div>Data Source Type:</div>
+                                                    <div>MQTT Broker URL:</div>
                                                     <input id="inputedit-brokerUrl" type="text" placeholder="MQTT Broker URL" class="form-control form-control-lg" name="icon-filter">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div>MQTT Broker Port:</div>
+                                                    <input id="inputedit-brokerPort" type="text" placeholder="MQTT Broker Port" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
                                             </div>
                                             <div class="row mb-5">
                                                 <div class="col-md-6">
-                                                    <div>Data Source Type:</div>
+                                                    <div>MQTT Topic:</div>
                                                     <input id="inputedit-topic" type="text" placeholder="MQTT Topic" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <div>Data Source Type:</div>
+                                                    <div>MQTT Client ID:</div>
                                                     <input id="inputedit-clientId" type="text" placeholder="MQTT Client ID" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
                                             </div>
                                             <div class="row mb-5">
+                                                <div class="col-md-6">
+                                                    <div>MQTT Quality of Service Level:</div>
+                                                    <input id="inputedit-qualityOfServiceLevel" type="text" placeholder="MQTT Quality of Service Level" class="form-control form-control-lg" name="icon-filter">
+                                                </div>
+                                            </div>
+                                            <!--<div class="row mb-5">
                                                 <div class="col-md-6">
                                                     <div>Data Source Type:</div>
                                                     <input id="inputedit-username" type="text" placeholder="MQTT Username" class="form-control form-control-lg" name="icon-filter">
@@ -282,12 +314,39 @@
                                                     <div>Data Source Type:</div>
                                                     <input id="inputedit-password" type="text" placeholder="MQTT Password" class="form-control form-control-lg" name="icon-filter">
                                                 </div>
-                                            </div>
+                                            </div>-->
 
 
                                             <div class="row mb-5">
                                                 <div class="col-md-3">
                                                     <button id="update-connection-configuration-button" type="button" class="btn btn-outline-theme btn-lg btn-block">Update</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="modal modal-cover fade" id="disconnect-from-MQTT-broker-server-modal">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="modal-title">Disconnect Client from MQTT Broker Server</h3>
+                                            <button type="button" class="close-modal-button btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row mb-5">
+                                                <div class="col-md-12">
+                                                    <div>Data Source ID:</div>
+                                                    <input id="input-connection-ID-generated" type="text" placeholder="Generated Connection ID" class="form-control form-control-lg" name="icon-filter">
+                                                </div>
+                                            </div>
+
+
+                                            <div class="row mb-5">
+                                                <div class="col-md-3">
+                                                    <button id="disconnect-from-MQTT-broker-server-button" type="button" class="btn btn-outline-theme btn-lg btn-block">Disconnect</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -302,7 +361,7 @@
                 <!-- END col-10 -->
             </div>
             <!-- END row -->
-        </div>
+        <!--</div>-->
         <!-- END container -->
     </div>
     <!-- END #content -->

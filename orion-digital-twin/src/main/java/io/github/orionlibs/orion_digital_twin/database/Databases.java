@@ -11,6 +11,8 @@ public class Databases
     public static final String apiKey = "apiKey";
     public static final String httpMethod = "httpMethod";
     public static final String brokerUrl = "brokerUrl";
+    public static final String brokerPort = "brokerPort";
+    public static final String qualityOfServiceLevel = "qualityOfServiceLevel";
     public static final String topic = "topic";
     public static final String clientId = "clientId";
     public static final String username = "username";
@@ -21,7 +23,6 @@ public class Databases
     public static final String subscriberId = "subscriberId";
     public static final String publisherId = "publisherId";
     public static final String content = "content";
-    public static final String qualityOfServiceLevel = "qualityOfServiceLevel";
     public static final String isDeliveredToSubscriber = "isDeliveredToSubscriber";
     public static final String publicationDateTime = "publicationDateTime";
     public static final String tableTopicSubscribers = "." + "topic_subscribers";

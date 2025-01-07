@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Getter
 @Setter
-public class EditConnectionConfigurationRequestBean extends OrionResponse
+public class EditMQTTConnectionConfigurationRequestBean extends OrionResponse
 {
     private Long connectionConfigurationID;
     private String dataSourceId;
@@ -21,8 +21,10 @@ public class EditConnectionConfigurationRequestBean extends OrionResponse
     private String apiKey;
     private String httpMethod;
     private String brokerUrl;
+    private String brokerPort;
     private String topic;
     private String clientId;
+    private Integer qualityOfServiceLevel;
     private String username;
     private String password;
 }

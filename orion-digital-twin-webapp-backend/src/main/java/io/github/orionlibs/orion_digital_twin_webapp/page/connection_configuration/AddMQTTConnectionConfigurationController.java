@@ -17,25 +17,27 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping(value = "/wapi/v1/connection-configurations")
-public class AddConnectionConfigurationController
+@RequestMapping(value = "/wapi/v1/connection-configurations/MQTT")
+public class AddMQTTConnectionConfigurationController
 {
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<AddConnectionConfigurationResponseBean> connectionConfigurationsPageAddConnectionConfiguration(@RequestBody AddConnectionConfigurationRequestBean requestBean)
+    public ResponseEntity<AddConnectionConfigurationResponseBean> connectionConfigurationsPageAddMQTTConnectionConfiguration(@RequestBody AddMQTTConnectionConfigurationRequestBean requestBean)
     {
         try
         {
             ConnectionConfigurationsDAO.save(ConnectionConfigurationModel.builder()
                             .dataSourceId(requestBean.getDataSourceId())
                             .dataSourceType(requestBean.getDataSourceType())
-                            .apiUrl(requestBean.getApiUrl())
-                            .apiKey(requestBean.getApiKey())
-                            .httpMethod(requestBean.getHttpMethod())
+                            //.apiUrl(requestBean.getApiUrl())
+                            //.apiKey(requestBean.getApiKey())
+                            //.httpMethod(requestBean.getHttpMethod())
                             .brokerUrl(requestBean.getBrokerUrl())
+                            .brokerPort(requestBean.getBrokerPort())
                             .topic(requestBean.getTopic())
                             .clientId(requestBean.getClientId())
-                            .username(requestBean.getUsername())
-                            .password(requestBean.getPassword())
+                            .qualityOfServiceLevel(requestBean.getQualityOfServiceLevel())
+                            //.username(requestBean.getUsername())
+                            //.password(requestBean.getPassword())
                             .build());
             return ResponseEntity.ok(AddConnectionConfigurationResponseBean.builder().build());
         }
@@ -47,7 +49,7 @@ public class AddConnectionConfigurationController
 
 
     @PostMapping(value = "/uploads/json", consumes = "multipart/form-data")
-    public ResponseEntity<String> connectionConfigurationsPageAddConnectionConfigurationViaJSON(@RequestParam("files[]") MultipartFile[] files)
+    public ResponseEntity<String> connectionConfigurationsPageAddMQTTConnectionConfigurationViaJSON(@RequestParam("files[]") MultipartFile[] files)
     {
         List<String> fileNames = new ArrayList<>();
         try
@@ -59,7 +61,7 @@ public class AddConnectionConfigurationController
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File is empty!");
                 }
                 String fileJSONContent = IOUtils.toString(file.getInputStream(), "UTF-8");
-                new ConnectorConfigurationService().configureAndSaveToDatabase(fileJSONContent);
+                new ConnectorConfigurationService().configureMQTTAndSaveToDatabase(fileJSONContent);
             }
             return ResponseEntity.ok("Uploaded successfully: " + String.join(", ", fileNames));
         }

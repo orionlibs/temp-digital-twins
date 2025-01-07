@@ -65,7 +65,7 @@ public class MQTTBrokerServer
                 embeddedHiveMQ.start().join();
                 this.isRunning = true;
             }
-            catch(final Exception ex)
+            catch(Exception ex)
             {
                 ex.printStackTrace();
             }
@@ -82,7 +82,7 @@ public class MQTTBrokerServer
                 embeddedHiveMQ.stop().join();
                 this.isRunning = false;
             }
-            catch(final Exception ex)
+            catch(Exception ex)
             {
                 ex.printStackTrace();
             }
