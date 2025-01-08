@@ -69,6 +69,22 @@
                         </div>
                     </div>
                 </div>
+                <div class="menu-item has-sub">
+                    <a href="#" class="menu-link">
+							<span class="menu-icon">
+								<i class="bi bi-envelope"></i>
+							</span>
+                        <span class="menu-text">Data Explorer</span>
+                        <span class="menu-caret"><b class="caret"></b></span>
+                    </a>
+                    <div class="menu-submenu">
+                        <div class="menu-item">
+                            <a href="topicExplorer.html" class="menu-link">
+                                <span class="menu-text">Topic Explorer</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!-- END menu -->
         </div>
@@ -111,15 +127,17 @@
                             <div id="connection-configuration-summaries-datatable" class="mb-5">
                                 <h4>Summary of connection configurations <button id="refresh-connection-configurations-table-button" type="submit" class="btn btn-outline-warning">Refresh Table</button>
                                 &nbsp;<button type="submit" class="btn btn-outline-theme" data-bs-toggle="modal" data-bs-target="#add-connection-configuration-form-modal">Add MQTT Connection</button>
-                                    &nbsp;<button type="submit" class="btn btn-outline-theme" data-bs-toggle="modal" data-bs-target="#disconnect-from-MQTT-broker-server-modal">Disconnect from MQTT</button></h4>
+                                &nbsp;<button type="submit" class="btn btn-outline-theme" data-bs-toggle="modal" data-bs-target="#disconnect-from-MQTT-broker-server-modal">Disconnect from MQTT</button>
+                                &nbsp;<button id="start-test-MQTT-publishes-button" type="submit" class="btn btn-outline-warning">Start Test MQTT Publishes</button>
+                                &nbsp;<button id="stop-test-MQTT-publishes-button" type="submit" class="btn btn-outline-danger">Stop Test MQTT Publishes</button></h4>
                                 <div class="card">
                                     <div class="card-body">
                                         <table id="connection-configuration-summaries-table" class="table text-nowrap w-100">
                                             <thead>
                                             <tr>
                                                 <th>Edit</th>
-                                                <th>Connect</th>
-                                                <th>Start Broker</th>
+                                                <th>Client</th>
+                                                <th>Server</th>
                                                 <th>#</th>
                                                 <th>Data Source ID</th>
                                                 <th>Data Source Type</th>

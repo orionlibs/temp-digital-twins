@@ -6,6 +6,18 @@ $(document).ready(function ()
     });
 
 
+    $('body').on('click', '#start-test-MQTT-publishes-button', function(e)
+    {
+        orionCommon.makeGetAJAXCall('http://localhost:8080/wapi/v1/connection-configurations/MQTT/scheduled-test-publishes', connectionConfigurations.processScheduleTestMQTTPublishes);
+    });
+
+
+    $('body').on('click', '#stop-test-MQTT-publishes-button', function(e)
+    {
+        orionCommon.makeDeleteAJAXCall('http://localhost:8080/wapi/v1/connection-configurations/MQTT/scheduled-test-publishes', connectionConfigurations.processScheduleTestMQTTPublishesStop);
+    });
+
+
     const connectionConfigurationJSONFilesToUpload = document.getElementById('connection-configuration-json-files-to-upload');
 
     connectionConfigurationJSONFilesToUpload.addEventListener('change', async () =>
@@ -261,5 +273,17 @@ let connectionConfigurations =
     {
         alert(data.clientConnectionToMQTTServerStatus);
         $(".close-modal-button").click();
+    },
+
+
+    processScheduleTestMQTTPublishes : function(data)
+    {
+        alert(data.hasErrors);
+    },
+
+
+    processScheduleTestMQTTPublishesStop : function(data)
+    {
+        alert(data.hasErrors);
     }
 }

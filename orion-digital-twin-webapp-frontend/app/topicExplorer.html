@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <title>OrionTwin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <script src="assets/js/vendor.min.js"></script>
+
+    <!-- ================== BEGIN core-css ================== -->
+    <link href="assets/css/vendor.min.css" rel="stylesheet">
+    <link href="assets/css/app.min.css" rel="stylesheet">
+    <!-- ================== END core-css ================== -->
+
+    <!-- ================== BEGIN page-css ================== -->
+    <link href="assets/plugins/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="assets/plugins/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <link href="assets/plugins/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <link href="assets/plugins/bootstrap-table/dist/bootstrap-table.min.css" rel="stylesheet">
+    <!-- ================== END page-css ================== -->
+
+</head>
+<body id="orion-digital-twin">
+<!-- BEGIN #app -->
+<div id="app" class="app">
+    <!-- BEGIN #header -->
+    <div id="header" class="app-header">
+        <!-- BEGIN brand -->
+        <div class="brand">
+            <a href="index.html" class="brand-logo">
+					<span class="brand-img">
+						<span class="brand-img-text text-theme">DT</span>
+					</span>
+                <span class="brand-text">Orion Twin</span>
+            </a>
+        </div>
+        <!-- END brand -->
+    </div>
+    <!-- END #header -->
+
+
+    <!-- BEGIN #sidebar -->
+    <div id="sidebar" class="app-sidebar">
+        <!-- BEGIN scrollbar -->
+        <div class="app-sidebar-content" data-scrollbar="true" data-height="100%">
+            <!-- BEGIN menu -->
+            <div class="menu">
+                <div class="menu-header">Navigation</div>
+                <div class="menu-item active">
+                    <a href="index.html" class="menu-link">
+                        <span class="menu-icon"><i class="bi bi-cpu"></i></span>
+                        <span class="menu-text">Dashboard</span>
+                    </a>
+                </div>
+                <div class="menu-item has-sub">
+                    <a href="#" class="menu-link">
+							<span class="menu-icon">
+								<i class="bi bi-envelope"></i>
+							</span>
+                        <span class="menu-text">Data Sources</span>
+                        <span class="menu-caret"><b class="caret"></b></span>
+                    </a>
+                    <div class="menu-submenu">
+                        <div class="menu-item">
+                            <a href="connectionConfigurations.html" class="menu-link">
+                                <span class="menu-text">Connection Configurations</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="menu-item has-sub">
+                    <a href="#" class="menu-link">
+							<span class="menu-icon">
+								<i class="bi bi-envelope"></i>
+							</span>
+                        <span class="menu-text">Data Explorer</span>
+                        <span class="menu-caret"><b class="caret"></b></span>
+                    </a>
+                    <div class="menu-submenu">
+                        <div class="menu-item">
+                            <a href="topicExplorer.html" class="menu-link">
+                                <span class="menu-text">Topic Explorer</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END menu -->
+        </div>
+        <!-- END scrollbar -->
+    </div>
+    <!-- END #sidebar -->
+
+
+
+    <!-- BEGIN mobile-sidebar-backdrop -->
+    <button class="app-sidebar-mobile-backdrop" data-toggle-target=".app" data-toggle-class="app-sidebar-mobile-toggled"></button>
+    <!-- END mobile-sidebar-backdrop -->
+
+
+
+    <!-- BEGIN #content -->
+    <div id="content" class="app-content">
+        <!-- BEGIN container -->
+        <!--<div class="container">-->
+            <!-- BEGIN row -->
+            <div class="row justify-content-center">
+                <!-- BEGIN col-12 -->
+                <div class="col-xl-12">
+                    <!-- BEGIN row -->
+                    <div class="row">
+                        <!-- BEGIN col-12 -->
+                        <div class="col-xl-12">
+                            <ul class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="#">Data Explorer</a></li>
+                                <li class="breadcrumb-item active">Topic Explorer</li>
+                            </ul>
+
+                            <h1 class="page-header">
+                                Topic Explorer <small>Here you can view the MQTT data of the active MQTT clients</small>
+                            </h1>
+
+                            <hr class="mb-4">
+
+                            <!--<a id="connectButton" class="small button" onclick="websocketclient.connect();">Connect to MQTT</a>
+                            <a id="disconnectButton" class="small button" onclick="websocketclient.disconnect();">Disconnect from MQTT</a>
+                            <br><br>-->
+                            <h3>Messages</h3>
+                            <textarea rows="20" cols="300" id="messages_arrived"></textarea>
+                        </div>
+                        <!-- END col-9-->
+                    </div>
+                    <!-- END row -->
+                </div>
+                <!-- END col-10 -->
+            </div>
+            <!-- END row -->
+        <!--</div>-->
+        <!-- END container -->
+    </div>
+    <!-- END #content -->
+
+
+    <!-- BEGIN btn-scroll-top -->
+    <a href="#" data-toggle="scroll-to-top" class="btn-scroll-top fade"><i class="fa fa-arrow-up"></i></a>
+    <!-- END btn-scroll-top -->
+</div>
+<!-- END #app -->
+
+<!-- ================== BEGIN core-js ================== -->
+<script src="assets/js/app.min.js"></script>
+<!-- ================== END core-js ================== -->
+
+<!-- ================== BEGIN page-js ================== -->
+<script src="assets/plugins/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="assets/js/demo/highlightjs.demo.js"></script>
+<script src="assets/plugins/datatables.net/js/dataTables.min.js"></script>
+<script src="assets/plugins/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
+<script src="assets/plugins/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+<script src="assets/plugins/datatables.net-buttons/js/buttons.colVis.min.js"></script>
+<script src="assets/plugins/datatables.net-buttons/js/buttons.html5.min.js"></script>
+<script src="assets/plugins/datatables.net-buttons/js/buttons.print.min.js"></script>
+<script src="assets/plugins/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js"></script>
+<script src="assets/plugins/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+<script src="assets/plugins/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js"></script>
+<script src="assets/plugins/bootstrap-table/dist/bootstrap-table.min.js"></script>
+<script src="assets/js/orion.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<!--<script src="assets/js/mqtt311Websocket.js"></script>
+<script src="assets/js/mqttEncoder.js"></script>-->
+<script src="assets/js/topicExplorer.js"></script>
+<!-- ================== END page-js ================== -->
+
+</body>
+</html>

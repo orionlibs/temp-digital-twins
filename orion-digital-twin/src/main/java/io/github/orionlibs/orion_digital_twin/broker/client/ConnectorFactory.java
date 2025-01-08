@@ -73,7 +73,7 @@ public class ConnectorFactory
                             final var future = client.publish(publish);
                             return CompletableFuture.allOf(future);
                         }).thenCompose(unused -> {
-                            System.out.println("Successfully published publisher!");
+                            System.out.println("Successfully published!");
                             return client.disconnect();
                         }).exceptionally(throwable -> {
                             System.out.println("Something went wrong publisher!");
@@ -90,9 +90,9 @@ public class ConnectorFactory
                         .serverHost(brokerUrl)
                         .serverPort(port)
                         .buildAsync();
-        client.publishes(MqttGlobalPublishFilter.SUBSCRIBED, publish -> {
+        /*client.publishes(MqttGlobalPublishFilter.SUBSCRIBED, publish -> {
             System.out.println("Received publish with payload: " + new String(publish.getPayloadAsBytes(), UTF_8));
-        });
+        });*/
         client.connect()
                         .thenCompose(connAck -> {
                             System.out.println("Successfully connected subscriber!");
