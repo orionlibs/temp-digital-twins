@@ -86,6 +86,7 @@ public class MQTTBrokerServerTest extends ATest
         startPublisherClient("test/topic1", "somePayload5", "testPublisherId");
         Thread.sleep(2000L);
         assertEquals(5, DataPacketsDAO.getNumberOfRecords());
+        Thread.sleep(2000L);
         startUnsubscriberClient("test/topic1", clientID);
         Thread.sleep(2000L);
         assertEquals(0, TopicSubscribersDAO.getNumberOfRecords());
