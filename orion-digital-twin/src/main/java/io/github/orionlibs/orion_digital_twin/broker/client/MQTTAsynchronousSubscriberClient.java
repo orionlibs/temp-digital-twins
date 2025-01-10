@@ -14,7 +14,7 @@ public class MQTTAsynchronousSubscriberClient
 
     public MQTTAsynchronousSubscriberClient(String brokerUrl, int port, String topic, MqttQos qualityOfServiceLevel, String clientId)
     {
-        Mqtt5AsyncClient client = Mqtt5Client.builder()
+        this.client = Mqtt5Client.builder()
                         .identifier(clientId)
                         .serverHost(brokerUrl)
                         .serverPort(port)
