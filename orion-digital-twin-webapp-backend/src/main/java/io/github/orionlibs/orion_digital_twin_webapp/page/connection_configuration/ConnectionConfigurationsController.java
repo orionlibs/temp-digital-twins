@@ -122,7 +122,7 @@ public class ConnectionConfigurationsController
     public ResponseEntity<ConnectionConfigurationsResponseBean> connectionConfigurationsPageConnectClientToMQTTBrokerServer(@PathVariable Long connectionConfigurationID)
     {
         ConnectionConfigurationModel config = ConnectionConfigurationsDAO.getByID(connectionConfigurationID);
-        Mqtt5AsyncClient client = new ConnectorFactory().newAsynchronousMQTTConnectorForSubscriber(config.getBrokerUrl(), Integer.parseInt(config.getBrokerPort()), config.getTopic(), MqttQos.fromCode(config.getQualityOfServiceLevel()), config.getClientId());
+        Mqtt5AsyncClient client = new ConnectorFactory().newAsynchronousMQTTConnectorForSubscriber(config.getBrokerUrl(), Integer.parseInt(config.getBrokerPort()), config.getTopic(), MqttQos.fromCode(config.getQualityOfServiceLevel()), config.getClientId()).getClient();
         String clientIDGenerated = UUIDSecurityService.generateUUIDWithoutHyphens();
         RunningMQTTClients.idToClientMapper.put(clientIDGenerated, client);
         client.publishes(MqttGlobalPublishFilter.SUBSCRIBED, publish -> {

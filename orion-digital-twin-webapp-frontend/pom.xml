@@ -12,27 +12,4 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
-
-
-    <scm>
-        <url>https://github.com/orionlibs/Orion-IoT-webapp-frontend</url>
-        <connection>scm:git:https://github.com/orionlibs/Orion-IoT-webapp-frontend.git</connection>
-        <developerConnection>scm:git:ssh://github.com/orionlibs/Orion-IoT-webapp-frontend.git</developerConnection>
-    </scm>
-
-
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-        </license>
-    </licenses>
-
-
-    <developers>
-        <developer>
-            <name>Dimitrios Efthymiou</name>
-            <email>efthymiou.dimitrios1@gmail.com</email>
-        </developer>
-    </developers>
 </project>
