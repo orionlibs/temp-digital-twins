@@ -6,6 +6,7 @@ $(document).ready(function ()
     stompClient.heartbeat.incoming = 0;
     stompClient.reconnect_delay = 5000;
 
+    //stompClient.connect({username: 'user', password: 'password'}, function(frame)
     stompClient.connect({}, function(frame)
     {
         console.log('Connected: ' + frame);
