@@ -30,7 +30,7 @@ public class MQTTAsynchronousPublisherClient
                         .buildAsync();
         client.connect()
                         .exceptionally(throwable -> {
-                            System.out.println("Something went wrong publisher!");
+                            System.out.println("Something went wrong publisher: " + throwable.getMessage());
                             return null;
                         });
     }
@@ -71,7 +71,7 @@ public class MQTTAsynchronousPublisherClient
                         }).thenCompose(unused -> {
                             return client.disconnect();
                         }).exceptionally(throwable -> {
-                            System.out.println("Something went wrong publisher!");
+                            System.out.println("Something went wrong publisher: " + throwable.getMessage());
                             return null;
                         });
     }
