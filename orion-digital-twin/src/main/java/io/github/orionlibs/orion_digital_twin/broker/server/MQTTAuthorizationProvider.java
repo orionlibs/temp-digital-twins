@@ -61,7 +61,6 @@ public class MQTTAuthorizationProvider implements AuthorizerProvider, PublishAut
             return;
         }
         publishAuthorizerOutput.authorizeSuccessfully();
-        publishAuthorizerOutput.nextExtensionOrDefault();
     }
 
 
@@ -82,6 +81,5 @@ public class MQTTAuthorizationProvider implements AuthorizerProvider, PublishAut
             return;
         }
         subscriptionAuthorizerOutput.authorizeSuccessfully();
-        subscriptionAuthorizerOutput.nextExtensionOrDefault();
     }
 }

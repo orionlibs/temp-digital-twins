@@ -7,6 +7,7 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import io.github.orionlibs.orion_digital_twin.ATest;
 import io.github.orionlibs.orion_digital_twin.Utils;
 import io.github.orionlibs.orion_digital_twin.broker.server.MQTTBrokerServer;
+import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketsDAO;
 import io.github.orionlibs.orion_digital_twin.remote_data.TopicSubscribersDAO;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
@@ -71,20 +72,20 @@ public class MQTTBrokerServerTest extends ATest
         assertEquals(0, TopicSubscribersDAO.getNumberOfRecords());
         //assertEquals(0, DataPacketsDAO.getNumberOfRecords());
         startSubscriberClient("test/topic1", MqttQos.EXACTLY_ONCE, clientID);
-        Thread.sleep(4000L);
+        Utils.nonblockingDelay(4);
         assertEquals(1, TopicSubscribersDAO.getNumberOfRecords());
         startPublisherClient("test/topic1", "somePayload1", "testPublisherId");
-        Thread.sleep(2000L);
+        Utils.nonblockingDelay(2);
         startPublisherClient("test/topic1", "somePayload2", "testPublisherId");
-        Thread.sleep(2000L);
+        Utils.nonblockingDelay(2);
         startPublisherClient("test/topic1", "somePayload3", "testPublisherId");
-        Thread.sleep(2000L);
-        //assertEquals(3, DataPacketsDAO.getNumberOfRecords());
-        //Thread.sleep(2000L);
+        Utils.nonblockingDelay(2);
+        assertEquals(3, DataPacketsDAO.getNumberOfRecords());
+        Utils.nonblockingDelay(2);
         startUnsubscriberClient("test/topic1", clientID);
-        Thread.sleep(2000L);
+        Utils.nonblockingDelay(2);
         assertEquals(0, TopicSubscribersDAO.getNumberOfRecords());
-        //assertEquals(0, DataPacketsDAO.getNumberOfRecords());
+        assertEquals(0, DataPacketsDAO.getNumberOfRecords());
     }
 
 
