@@ -1,8 +1,5 @@
 package io.github.orionlibs.orion_digital_twin.broker.client;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import com.hivemq.client.mqtt.MqttGlobalPublishFilter;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
@@ -26,7 +23,6 @@ public class MQTTAsynchronousSubscriberClient
                         .thenCompose(connAck -> {
                             System.out.println("Successfully connected subscriber!");
                             return client.subscribeWith().topicFilter(topic).qos(qualityOfServiceLevel).send();
-                        }).thenRun(() -> {
                         }).exceptionally(throwable -> {
                             System.out.println("Something went wrong subscriber: " + throwable.getMessage());
                             return null;

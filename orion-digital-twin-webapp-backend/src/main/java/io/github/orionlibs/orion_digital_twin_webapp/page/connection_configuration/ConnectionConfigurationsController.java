@@ -92,7 +92,7 @@ public class ConnectionConfigurationsController
         MQTTBrokerServer brokerServer = new MQTTBrokerServer();
         try
         {
-            brokerServer.startBroker();
+            brokerServer.startBroker(false, false);
             return ResponseEntity.ok(ConnectionConfigurationsResponseBean.builder()
                             .mqttServerStartStatus("server started")
                             .build());

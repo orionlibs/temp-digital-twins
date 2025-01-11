@@ -22,7 +22,7 @@ public class MQTTBrokerServer
     private boolean isRunning;
 
 
-    public void startBroker() throws ExecutionException, InterruptedException, URISyntaxException
+    public void startBroker(boolean useAuthenticator, boolean useAuthorizer) throws ExecutionException, InterruptedException, URISyntaxException
     {
         if(!isRunning)
         {
@@ -48,6 +48,15 @@ public class MQTTBrokerServer
                                                         }
                                                     };
                                                     Services.initializerRegistry().setClientInitializer(clientInitializer);
+                                                    Services.retainedMessageStore().clear();
+                                                    if(useAuthenticator)
+                                                    {
+                                                        Services.securityRegistry().setAuthenticatorProvider(new MQTTAuthenticatorProvider());
+                                                    }
+                                                    if(useAuthorizer)
+                                                    {
+                                                        Services.securityRegistry().setAuthorizerProvider(new MQTTAuthorizationProvider());
+                                                    }
                                                 }
 
 

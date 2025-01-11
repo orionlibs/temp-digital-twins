@@ -34,7 +34,7 @@ public class MQTTBrokerServerTest extends ATest
     {
         resetAndSeedDatabase();
         brokerServer = new MQTTBrokerServer();
-        brokerServer.startBroker();
+        brokerServer.startBroker(false, false);
         Utils.nonblockingDelay(3);
     }
 
