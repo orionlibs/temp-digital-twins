@@ -5,7 +5,7 @@ import com.hivemq.extension.sdk.api.interceptor.connect.ConnectInboundIntercepto
 import com.hivemq.extension.sdk.api.interceptor.connect.parameter.ConnectInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.connect.parameter.ConnectInboundOutput;
 
-public class MQTTPingRequestInterceptor implements ConnectInboundInterceptor
+public class MQTTConnectionInterceptor implements ConnectInboundInterceptor
 {
     @Override
     public void onConnect(@NotNull ConnectInboundInput connectInboundInput, @NotNull ConnectInboundOutput connectInboundOutput)
