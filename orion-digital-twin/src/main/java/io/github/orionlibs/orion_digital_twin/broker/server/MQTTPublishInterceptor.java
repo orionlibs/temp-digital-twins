@@ -5,11 +5,16 @@ import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundIntercepto
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
 import com.hivemq.extension.sdk.api.packets.general.Qos;
+import com.hivemq.extension.sdk.api.services.Services;
+import com.hivemq.extension.sdk.api.services.general.IterationCallback;
+import com.hivemq.extension.sdk.api.services.general.IterationContext;
+import com.hivemq.extension.sdk.api.services.subscription.SubscriberWithFilterResult;
 import io.github.orionlibs.orion_calendar.SQLTimestamp;
 import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketModel;
 import io.github.orionlibs.orion_digital_twin.remote_data.DataPacketsDAO;
 import java.nio.ByteBuffer;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class MQTTPublishInterceptor implements PublishInboundInterceptor
 {
@@ -29,10 +34,27 @@ public class MQTTPublishInterceptor implements PublishInboundInterceptor
                 byte[] bytes = new byte[buffer.remaining()];
                 buffer.get(bytes);
                 String payload = new String(bytes);
-                Optional<String> subscriberID = publishInboundOutput.getPublishPacket().getUserProperties().getFirst("subscriberId");
-                if(subscriberID.isPresent())
+                IterationCallback<SubscriberWithFilterResult> subscribersForTopic = new IterationCallback()
                 {
-                    storePayloadToDatabase(publisherId, subscriberID.get(), topic, payload, qualityOfServiceLevel, payloadPyblicationDateTime);
+                    @Override
+                    public void iterate(IterationContext iterationContext, Object o)
+                    {
+                        SubscriberWithFilterResult result = (SubscriberWithFilterResult)o;
+                        storePayloadToDatabase(publisherId, result.getClientId(), topic, payload, qualityOfServiceLevel, payloadPyblicationDateTime);
+                    }
+                };
+                CompletableFuture<Void> searchResults = Services.subscriptionStore().iterateAllSubscribersWithTopicFilter(topic, subscribersForTopic);
+                try
+                {
+                    searchResults.get();
+                }
+                catch(InterruptedException e)
+                {
+                    throw new RuntimeException(e);
+                }
+                catch(ExecutionException e)
+                {
+                    throw new RuntimeException(e);
                 }
             }
         }

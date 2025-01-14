@@ -17,6 +17,26 @@ public class Utils
     }
 
 
+    public static void nonblockingDelay2(int numberOfSeconds)
+    {
+        long durationNanos = numberOfSeconds * 1_000_000_000L;
+        long startTime = System.nanoTime();
+        while(true)
+        {
+            long currentTime = System.nanoTime();
+            long elapsedTime = currentTime - startTime;
+            if(elapsedTime >= durationNanos)
+            {
+                break;
+            }
+            for(int i = 0; i < 10; i++)
+            {
+                Math.sin(i);
+            }
+        }
+    }
+
+
     private static CompletableFuture<Void> delay(long delay, TimeUnit unit, ScheduledExecutorService scheduler)
     {
         CompletableFuture<Void> future = new CompletableFuture<>();

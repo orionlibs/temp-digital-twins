@@ -67,10 +67,9 @@ public class MQTTBrokerServerTest extends ATest
 
 
     @Test
-    void testPublishAndSubscribeAndUnsubscribeAndPersistenceAfterMQTTServerShutdown() throws InterruptedException
+    void testPublishAndSubscribeAndUnsubscribeAndPersistenceAfterMQTTServerShutdown()
     {
         assertEquals(0, TopicSubscribersDAO.getNumberOfRecords());
-        //assertEquals(0, DataPacketsDAO.getNumberOfRecords());
         startSubscriberClient("test/topic1", MqttQos.EXACTLY_ONCE, clientID);
         Utils.nonblockingDelay(4);
         assertEquals(1, TopicSubscribersDAO.getNumberOfRecords());
@@ -79,7 +78,7 @@ public class MQTTBrokerServerTest extends ATest
         startPublisherClient("test/topic1", "somePayload2", "testPublisherId");
         Utils.nonblockingDelay(2);
         startPublisherClient("test/topic1", "somePayload3", "testPublisherId");
-        Utils.nonblockingDelay(6);
+        Utils.nonblockingDelay(2);
         assertEquals(3, DataPacketsDAO.getNumberOfRecords());
         Utils.nonblockingDelay(2);
         startUnsubscriberClient("test/topic1", clientID);
