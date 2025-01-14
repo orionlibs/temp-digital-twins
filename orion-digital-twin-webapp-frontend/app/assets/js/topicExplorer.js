@@ -10,7 +10,7 @@ $(document).ready(function ()
     stompClient.connect({}, function(frame)
     {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/mqtt/iot-devices-live/summaries', function(message)
+        stompClient.subscribe('/topic/mqtt/iot-devices-live/summaries', function(message)
         {
             if(message.body)
             {

@@ -79,7 +79,7 @@ public class MQTTBrokerServerTest extends ATest
         startPublisherClient("test/topic1", "somePayload2", "testPublisherId");
         Utils.nonblockingDelay(2);
         startPublisherClient("test/topic1", "somePayload3", "testPublisherId");
-        Utils.nonblockingDelay(2);
+        Utils.nonblockingDelay(6);
         assertEquals(3, DataPacketsDAO.getNumberOfRecords());
         Utils.nonblockingDelay(2);
         startUnsubscriberClient("test/topic1", clientID);

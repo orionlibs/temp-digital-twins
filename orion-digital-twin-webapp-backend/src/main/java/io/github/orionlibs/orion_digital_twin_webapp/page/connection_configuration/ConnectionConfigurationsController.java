@@ -129,7 +129,7 @@ public class ConnectionConfigurationsController
             TopicExplorerResponseBean responseBean = TopicExplorerResponseBean.builder()
                             .mqttMessageArrived(new String(publish.getPayloadAsBytes(), UTF_8))
                             .build();
-            this.messagingTemplate.convertAndSend("/mqtt/iot-devices-live/summaries", responseBean);
+            this.messagingTemplate.convertAndSend("/topic/mqtt/iot-devices-live/summaries", responseBean);
         });
         return ResponseEntity.ok(ConnectionConfigurationsResponseBean.builder()
                         .clientConnectionToMQTTServerStatus("client " + clientIDGenerated + " connected")
