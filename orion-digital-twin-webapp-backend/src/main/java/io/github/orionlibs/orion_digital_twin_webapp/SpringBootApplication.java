@@ -8,7 +8,6 @@ import io.github.orionlibs.orion_digital_twin.OrionDomain;
 import io.github.orionlibs.orion_digital_twin.Setup;
 import io.github.orionlibs.orion_digital_twin_webapp.page.DashboardController;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -19,15 +18,15 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-@SpringBootApplication
+@org.springframework.boot.autoconfigure.SpringBootApplication
 @EnableWebMvc
 @EnableScheduling
 @Import({DashboardController.class})
-public class OrionDigitalTwinWebApplicationBackEndApplication
+public class SpringBootApplication
 {
     public static void main(String[] args)
     {
-        SpringApplication.run(OrionDigitalTwinWebApplicationBackEndApplication.class, args);
+        SpringApplication.run(SpringBootApplication.class, args);
         System.setProperty("active.execution.profile", OrionDomain.production);
         Setup.setup();
         //Properties customConfig = new Properties();
